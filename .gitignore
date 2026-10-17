@@ -1,0 +1,66 @@
+# Secrets and environment configurations
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+secrets/
+
+# Java / Maven
+backend/target/
+backend/.mvn/timing.properties
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+
+# Python / ML
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ml/.venv/
+ml/build/
+ml/dist/
+ml/*.egg-info/
+ml/src/*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Unbounded ML datasets, weights, checkpoints, and local artifact roots
+ml/data/raw/
+ml/data/processed/
+ml/data/shards/
+ml/checkpoints/
+ml/artifacts/
+mlflow-artifacts/
+airflow-logs/
+uploads/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+*.mmap
+
+# Infrastructure volumes and local runtime state
+infra/data/
+infra/volumes/
+infra/logs/
+
+# IDE and OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
