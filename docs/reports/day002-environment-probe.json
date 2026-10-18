@@ -1,0 +1,75 @@
+{
+  "probe_version": 1,
+  "recorded_at_utc": "2026-10-16T02:31:12.151437+00:00",
+  "os": {
+    "system": "Windows",
+    "release": "11",
+    "version": "10.0.26100",
+    "machine": "AMD64",
+    "logical_cpus": 8
+  },
+  "runtimes": {
+    "python_version": "3.12.0",
+    "python_executable": "C:\\Users\\ahmed\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "java_version": "openjdk version \"21.0.12\" 2026-07-21 LTS",
+    "docker_version": "Docker version 27.4.0, build bde2b89",
+    "torch_version": "2.6.0+cu118"
+  },
+  "storage": {
+    "C:": {
+      "total_gib": 282.29,
+      "used_gib": 261.59,
+      "free_gib": 20.7
+    },
+    "E:": {
+      "total_gib": 193.73,
+      "used_gib": 177.08,
+      "free_gib": 16.65
+    }
+  },
+  "cpu_smoke": {
+    "device": "cpu",
+    "status": "PASS",
+    "dtype": "float32",
+    "shape": [
+      32,
+      32
+    ],
+    "loss": -0.044618,
+    "gradients_finite": true,
+    "elapsed_ms": 791.768
+  },
+  "gpu": {
+    "cuda_available": true,
+    "torch_cuda_version": "11.8",
+    "compiled_arch_list": [
+      "sm_37",
+      "sm_50",
+      "sm_60",
+      "sm_61",
+      "sm_70",
+      "sm_75",
+      "sm_80",
+      "sm_86",
+      "sm_90",
+      "compute_37"
+    ],
+    "device_name": "Quadro M2000M",
+    "compute_capability": "5.0",
+    "total_vram_mib": 4095.9,
+    "sm_50_present": true,
+    "gpu_smoke": {
+      "device": "cuda:0",
+      "status": "PASS",
+      "dtype": "float32",
+      "shape": [
+        32,
+        32
+      ],
+      "loss": 0.012774,
+      "gradients_finite": true,
+      "elapsed_ms": 209.033
+    }
+  },
+  "fallback_policy": "CPU tiny-model profile remains a first-class supported execution path whenever GPU VRAM is occupied or unavailable."
+}
