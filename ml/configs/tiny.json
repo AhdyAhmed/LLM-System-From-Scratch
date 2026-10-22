@@ -1,0 +1,13 @@
+{
+  "profile_name": "tiny",
+  "n_layers": 4,
+  "d_model": 128,
+  "n_heads": 4,
+  "d_ff": 512,
+  "vocab_size": 264,
+  "max_seq_len": 128,
+  "dropout": 0.1,
+  "layer_norm_eps": 1e-5,
+  "tie_word_embeddings": true,
+  "use_bias": true
+}

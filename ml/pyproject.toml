@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scratchlm"
+version = "0.1.0"
+description = "Decoder-only transformer built from scratch in PyTorch with training, evaluation, and FastAPI serving"
+readme = "../README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "torch==2.6.0+cu118",
+    "numpy==1.26.4",
+    "fastapi==0.115.0",
+    "pydantic==2.9.2",
+    "uvicorn==0.30.6",
+    "httpx==0.28.1",
+    "httpx-sse==0.4.0",
+    "jsonschema==4.23.0",
+    "PyYAML==6.0.2",
+    "psutil==7.2.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
