@@ -1,0 +1,160 @@
+name: scratch-llm-platform
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: scratchllm-postgres
+    profiles: ["db", "platform", "tracking", "pipelines"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:-postgres_local_dev}
+      POSTGRES_DB: postgres
+      TZ: UTC
+      PGTZ: UTC
+    ports:
+      - "127.0.0.1:${LLM_DB_PORT:-54322}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init-multi-db.sql:/docker-entrypoint-initdb.d/01-init-multi-db.sql:ro
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=80"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "timezone=UTC"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U llm_app_user -d llm_app"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 2048M
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: scratchllm-redis
+    profiles: ["platform"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-63799}:6379"
+    volumes:
+      - redis_data:/data
+    command:
+      - "redis-server"
+      - "--maxmemory"
+      - "384mb"
+      - "--maxmemory-policy"
+      - "noeviction"
+      - "--appendonly"
+      - "no"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+
+  kafka:
+    image: apache/kafka:3.9.2
+    container_name: scratchllm-kafka
+    profiles: ["platform"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${KAFKA_PORT:-9094}:9094"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://127.0.0.1:${KAFKA_PORT:-9094}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_RETENTION_HOURS: 24
+      KAFKA_LOG_RETENTION_BYTES: 536870912
+      KAFKA_HEAP_OPTS: "-Xms512M -Xmx768M"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    deploy:
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1536M
+
+  mlflow:
+    image: pymk-mlflow:3.17.1
+    container_name: scratchllm-mlflow
+    profiles: ["tracking"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${MLFLOW_PORT:-5001}:5000"
+    volumes:
+      - mlflow_artifacts:/opt/mlflow/artifacts
+    command:
+      - "mlflow"
+      - "server"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "5000"
+      - "--backend-store-uri"
+      - "postgresql+psycopg2://${MLFLOW_DB_USER:-mlflow_user}:${MLFLOW_DB_PASSWORD:-mlflow_local_pass}@postgres:5432/${MLFLOW_DB_NAME:-mlflow_db}"
+      - "--artifacts-destination"
+      - "/opt/mlflow/artifacts"
+      - "--serve-artifacts"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 1024M
+
+  airflow:
+    image: apache/airflow:3.2.2-python3.12
+    container_name: scratchllm-airflow
+    profiles: ["pipelines"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:${AIRFLOW_PORT:-8088}:8080"
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER:-airflow_user}:${AIRFLOW_DB_PASSWORD:-airflow_local_pass}@postgres:5432/${AIRFLOW_DB_NAME:-airflow_db}
+      AIRFLOW__CORE__PARALLELISM: "2"
+      AIRFLOW__CORE__MAX_ACTIVE_TASKS_PER_DAG: "1"
+      AIRFLOW__CORE__MAX_ACTIVE_RUNS_PER_DAG: "1"
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+    volumes:
+      - ../pipelines/dags:/opt/airflow/dags:ro
+      - airflow_logs:/opt/airflow/logs
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 2560M
+
+volumes:
+  postgres_data:
+  redis_data:
+  kafka_data:
+  mlflow_artifacts:
+  airflow_logs:
