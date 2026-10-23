@@ -1,0 +1,5 @@
+{"id": 1, "event": "run.queued", "data": {"run_id": "11111111-2222-4333-8444-555555555555", "schema_version": 1, "model_revision": "scratch-tiny-r1"}}
+{"id": 2, "event": "run.started", "data": {"run_id": "11111111-2222-4333-8444-555555555555", "schema_version": 1, "model_revision": "scratch-tiny-r1"}}
+{"id": 3, "event": "text.delta", "data": {"run_id": "11111111-2222-4333-8444-555555555555", "schema_version": 1, "text": "Once upon a time"}}
+{"id": 4, "event": "text.delta", "data": {"run_id": "11111111-2222-4333-8444-555555555555", "schema_version": 1, "text": ", the little robot counted to ten."}}
+{"id": 5, "event": "run.completed", "data": {"run_id": "11111111-2222-4333-8444-555555555555", "schema_version": 1, "finish_reason": "stop", "input_tokens": 18, "output_tokens": 11}}

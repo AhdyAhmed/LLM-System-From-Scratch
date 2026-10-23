@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "run_id": "11111111-2222-4333-8444-555555555555",
+  "attempt_token": 1,
+  "model_revision": "scratch-tiny-r1",
+  "prompt": "<|user|>\nOnce upon a time, a tiny robot learned to count.\n<|assistant|>\n",
+  "context_limit": 128,
+  "sampling": {
+    "max_new_tokens": 32,
+    "temperature": 0.8,
+    "top_k": 40,
+    "top_p": 0.95,
+    "seed": 42
+  },
+  "deadline_epoch_ms": 1792128000000,
+  "fault_injection": null
+}

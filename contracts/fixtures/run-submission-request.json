@@ -1,0 +1,12 @@
+{
+  "prompt": "Once upon a time, a tiny robot learned to count.",
+  "model_alias": "scratch-tiny",
+  "sampling": {
+    "max_new_tokens": 32,
+    "temperature": 0.8,
+    "top_k": 40,
+    "top_p": 0.95,
+    "seed": 42
+  },
+  "document_ids": []
+}

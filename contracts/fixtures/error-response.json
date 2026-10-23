@@ -1,0 +1,10 @@
+{
+  "error_code": "ACTIVE_RUN_CONFLICT",
+  "message": "Conversation already has an active generation run in QUEUED or RUNNING state.",
+  "request_id": "req-99887766-5544-4321-8765-112233445566",
+  "timestamp": "2026-10-16T02:10:00Z",
+  "details": {
+    "conversation_id": "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+    "active_run_id": "11111111-2222-4333-8444-555555555555"
+  }
+}
