@@ -1,0 +1,77 @@
+name: CI Quality Gates
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+jobs:
+  contracts-and-python:
+    name: Python ML & Shared Contracts Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        working-directory: ml
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . pytest pyyaml jsonschema
+
+      - name: Run environment probe (CPU smoke)
+        run: python scripts/probe_environment.py --cpu-only
+
+      - name: Run Python pytest suite
+        working-directory: ml
+        run: python -m pytest
+
+  java-backend:
+    name: Java 21 Spring Boot & PostgreSQL Gate
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres_dev_password
+          POSTGRES_DB: llm_app
+        ports:
+          - 54322:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Initialize PostgreSQL user and extensions
+        env:
+          PGPASSWORD: postgres_dev_password
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d llm_app -c "CREATE ROLE llm_app_user WITH LOGIN PASSWORD 'llm_app_dev_password';"
+          psql -h 127.0.0.1 -p 54322 -U postgres -d llm_app -c "GRANT ALL PRIVILEGES ON DATABASE llm_app TO llm_app_user;"
+          psql -h 127.0.0.1 -p 54322 -U postgres -d llm_app -c "GRANT ALL ON SCHEMA public TO llm_app_user;"
+          psql -h 127.0.0.1 -p 54322 -U postgres -d llm_app -c "CREATE EXTENSION IF NOT EXISTS pgcrypto; CREATE EXTENSION IF NOT EXISTS vector;"
+
+      - name: Run Maven verification
+        working-directory: backend
+        run: ./mvnw -B test
