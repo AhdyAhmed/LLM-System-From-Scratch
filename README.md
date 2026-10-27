@@ -1,6 +1,6 @@
 # End-to-End LLM System From Scratch
 
-A production-grade, headless/API-first **Large Language Model System built from scratch**, combining a custom **PyTorch decoder-only Transformer & BPE tokenizer (`ml/`)** with a **Java 21 + Spring Boot 3.5 modular monolith control plane (`backend/`)** backed by **PostgreSQL 16 + `pgvector`**, **Redis 7**, **Kafka KRaft**, **MLflow**, and **Airflow**.
+A production-grade, headless/API-first **Large Language Model System built from scratch**, combining a custom **PyTorch decoder-only Transformer & BPE tokenizer (`ml/`)** with a **Java 21 + Spring Boot 3.5 modular monolith control plane (`backend/`)** backed by **PostgreSQL 16 + `pgvector`**, **Redis 7**, **Kafka KRaft**, **MLflow**, and **Airflow** .
 
 ---
 
