@@ -10,6 +10,25 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
       connection-timeout: 5000
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:63799}
+      timeout: 2000ms
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:9094}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        max.request.size: 16384
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP:scratchllm-control-plane}
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
   jpa:
     open-in-view: false
     hibernate:
@@ -32,6 +51,21 @@ server:
         name: SESSION
         http-only: true
         same-site: lax
+
+scratchllm:
+  auth:
+    registration-enabled: ${REGISTRATION_ENABLED:true}
+    session-ttl-seconds: ${SESSION_TTL_SECONDS:28800}
+    cookie-secure: ${COOKIE_SECURE:false}
+  ratelimit:
+    auth-max-requests: ${RATELIMIT_AUTH_MAX:20}
+    auth-window-seconds: ${RATELIMIT_AUTH_WINDOW:60}
+    run-max-requests: ${RATELIMIT_RUN_MAX:15}
+    run-window-seconds: ${RATELIMIT_RUN_WINDOW:60}
+  quota:
+    daily-allowance-tokens: ${DAILY_ALLOWANCE_TOKENS:4096}
+  execution:
+    inline-fake-dispatch-enabled: ${INLINE_FAKE_DISPATCH_ENABLED:true}
 
 management:
   endpoints:
