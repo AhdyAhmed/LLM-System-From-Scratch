@@ -1,0 +1,191 @@
+{
+  "info": {
+    "_postman_id": "22222222-3333-4444-8555-666666666602",
+    "name": "ScratchLLM Phase 2 Headless API Collection",
+    "description": "Cookie-jar + X-CSRF-TOKEN collection for registration, Redis session login/logout, creator-private conversation CRUD, keyset pagination, idempotent run submission, SSE streaming, and cancellation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8080" },
+    { "key": "csrf_token", "value": "" },
+    { "key": "workspace_id", "value": "" },
+    { "key": "conversation_id", "value": "" },
+    { "key": "run_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Bootstrap CSRF Token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/auth/csrf",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "csrf"]
+        }
+      }
+    },
+    {
+      "name": "2. Register Local Demo Account",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-CSRF-TOKEN", "value": "{{csrf_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"StrongPass#2026!\",\n  \"workspace_name\": \"Alice Research Lab\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/register",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "3. Login and Rotate Redis Session",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-CSRF-TOKEN", "value": "{{csrf_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"StrongPass#2026!\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "4. Get Current Authenticated Profile (/api/v1/me)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "me"]
+        }
+      }
+    },
+    {
+      "name": "5. Create Private Conversation",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-CSRF-TOKEN", "value": "{{csrf_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Transformer Architecture Notes\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/workspaces/{{workspace_id}}/conversations",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "workspaces", "{{workspace_id}}", "conversations"]
+        }
+      }
+    },
+    {
+      "name": "6. List Conversations (Keyset Paginated)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/workspaces/{{workspace_id}}/conversations?limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "workspaces", "{{workspace_id}}", "conversations"],
+          "query": [{ "key": "limit", "value": "10" }]
+        }
+      }
+    },
+    {
+      "name": "7. Rename Conversation (Optimistic Lock)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-CSRF-TOKEN", "value": "{{csrf_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Updated Transformer Notes\",\n  \"version\": 0\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/conversations/{{conversation_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "conversations", "{{conversation_id}}"]
+        }
+      }
+    },
+    {
+      "name": "8. Submit Idempotent Generation Run",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-CSRF-TOKEN", "value": "{{csrf_token}}" },
+          { "key": "Idempotency-Key", "value": "idem-run-0001-2026" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"prompt\": \"Once upon a time, a curious little robot learned how to count tokens.\",\n  \"model_alias\": \"fake-deterministic\",\n  \"sampling\": {\n    \"max_new_tokens\": 24,\n    \"temperature\": 0.7,\n    \"top_k\": 40,\n    \"top_p\": 0.95,\n    \"seed\": 42\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/conversations/{{conversation_id}}/runs",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "conversations", "{{conversation_id}}", "runs"]
+        }
+      }
+    },
+    {
+      "name": "9. Stream Run SSE Events",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "text/event-stream" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/runs/{{run_id}}/events",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "runs", "{{run_id}}", "events"]
+        }
+      }
+    },
+    {
+      "name": "10. List Paginated Conversation Messages",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/conversations/{{conversation_id}}/messages?limit=50",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "conversations", "{{conversation_id}}", "messages"],
+          "query": [{ "key": "limit", "value": "50" }]
+        }
+      }
+    },
+    {
+      "name": "11. Logout and Invalidate Redis Session",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "X-CSRF-TOKEN", "value": "{{csrf_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/auth/logout",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "logout"]
+        }
+      }
+    }
+  ]
+}
