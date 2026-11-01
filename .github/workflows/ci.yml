@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   contracts-and-python:
-    name: Python ML & Shared Contracts Gate
+    name: Python ML, Client & Shared Contracts Gate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,7 +26,7 @@ jobs:
         working-directory: ml
         run: |
           python -m pip install --upgrade pip
-          pip install -e . pytest pyyaml jsonschema
+          pip install -e . pytest pyyaml jsonschema httpx
 
       - name: Run environment probe (CPU smoke)
         run: python scripts/probe_environment.py --cpu-only
@@ -36,7 +36,7 @@ jobs:
         run: python -m pytest
 
   java-backend:
-    name: Java 21 Spring Boot & PostgreSQL Gate
+    name: Java 21 Spring Boot, PostgreSQL, Redis & Kafka Gate
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -52,9 +52,22 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      redis:
+        image: redis:7.4-alpine
+        ports:
+          - 63799:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Start single-broker Kafka KRaft container
+        run: |
+          docker compose --env-file infra/.env.example -f infra/compose.yml up -d kafka
 
       - name: Set up Java 21
         uses: actions/setup-java@v4
@@ -67,10 +80,11 @@ jobs:
         env:
           PGPASSWORD: postgres_dev_password
         run: |
-          psql -h 127.0.0.1 -p 54322 -U postgres -d llm_app -c "CREATE ROLE llm_app_user WITH LOGIN PASSWORD 'llm_app_dev_password';"
+          psql -h 127.0.0.1 -p 54322 -U postgres -d llm_app -c "CREATE ROLE llm_app_user WITH LOGIN PASSWORD 'llm_app_local_pass';"
           psql -h 127.0.0.1 -p 54322 -U postgres -d llm_app -c "GRANT ALL PRIVILEGES ON DATABASE llm_app TO llm_app_user;"
           psql -h 127.0.0.1 -p 54322 -U postgres -d llm_app -c "GRANT ALL ON SCHEMA public TO llm_app_user;"
           psql -h 127.0.0.1 -p 54322 -U postgres -d llm_app -c "CREATE EXTENSION IF NOT EXISTS pgcrypto; CREATE EXTENSION IF NOT EXISTS vector;"
+          psql -h 127.0.0.1 -p 54322 -U postgres -c "CREATE DATABASE mlflow_db; CREATE DATABASE airflow_db;"
 
       - name: Run Maven verification
         working-directory: backend
