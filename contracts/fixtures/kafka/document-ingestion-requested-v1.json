@@ -1,0 +1,11 @@
+{
+  "event_id": "a1111111-2222-4333-8444-555555555502",
+  "event_type": "document.ingestion.requested.v1",
+  "schema_version": 1,
+  "occurred_at": "2026-10-16T05:01:00Z",
+  "workspace_id": "b1111111-2222-4333-8444-555555555501",
+  "document_id": "f1111111-2222-4333-8444-555555555502",
+  "document_revision": 1,
+  "uploader_user_id": "e1111111-2222-4333-8444-555555555501",
+  "content_checksum": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+}

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://scratchllm.local/schemas/kafka-events.schema.json",
+  "title": "ScratchLLM Versioned Kafka Control-Plane Event Envelopes",
+  "description": "Strict ID-only Kafka event schemas for generation.requested.v1, document.ingestion.requested.v1, and model.released.v1. Token chunks, raw prompts, document bodies, and model weights are forbidden.",
+  "type": "object",
+  "oneOf": [
+    {
+      "title": "GenerationRequestedV1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "event_type",
+        "schema_version",
+        "occurred_at",
+        "workspace_id",
+        "conversation_id",
+        "run_id",
+        "user_id",
+        "model_revision"
+      ],
+      "properties": {
+        "event_id": { "type": "string", "format": "uuid" },
+        "event_type": { "const": "generation.requested.v1" },
+        "schema_version": { "const": 1 },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "workspace_id": { "type": "string", "format": "uuid" },
+        "conversation_id": { "type": "string", "format": "uuid" },
+        "run_id": { "type": "string", "format": "uuid" },
+        "user_id": { "type": "string", "format": "uuid" },
+        "model_revision": { "type": "string", "minLength": 1, "maxLength": 120 }
+      }
+    },
+    {
+      "title": "DocumentIngestionRequestedV1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "event_type",
+        "schema_version",
+        "occurred_at",
+        "workspace_id",
+        "document_id",
+        "document_revision",
+        "uploader_user_id",
+        "content_checksum"
+      ],
+      "properties": {
+        "event_id": { "type": "string", "format": "uuid" },
+        "event_type": { "const": "document.ingestion.requested.v1" },
+        "schema_version": { "const": 1 },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "workspace_id": { "type": "string", "format": "uuid" },
+        "document_id": { "type": "string", "format": "uuid" },
+        "document_revision": { "type": "integer", "minimum": 1 },
+        "uploader_user_id": { "type": "string", "format": "uuid" },
+        "content_checksum": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    {
+      "title": "ModelReleasedV1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "event_type",
+        "schema_version",
+        "occurred_at",
+        "promotion_id",
+        "model_name",
+        "release_generation",
+        "target_revision_tag",
+        "artifact_checksum"
+      ],
+      "properties": {
+        "event_id": { "type": "string", "format": "uuid" },
+        "event_type": { "const": "model.released.v1" },
+        "schema_version": { "const": 1 },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "promotion_id": { "type": "string", "format": "uuid" },
+        "model_name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "release_generation": { "type": "integer", "minimum": 1 },
+        "target_revision_tag": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "previous_revision_tag": { "type": ["string", "null"], "maxLength": 120 },
+        "artifact_checksum": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    }
+  ]
+}

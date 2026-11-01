@@ -1,0 +1,11 @@
+{
+  "event_id": "a1111111-2222-4333-8444-555555555501",
+  "event_type": "generation.requested.v1",
+  "schema_version": 1,
+  "occurred_at": "2026-10-16T05:00:00Z",
+  "workspace_id": "b1111111-2222-4333-8444-555555555501",
+  "conversation_id": "c1111111-2222-4333-8444-555555555501",
+  "run_id": "d1111111-2222-4333-8444-555555555501",
+  "user_id": "e1111111-2222-4333-8444-555555555501",
+  "model_revision": "fake-deterministic-r1"
+}

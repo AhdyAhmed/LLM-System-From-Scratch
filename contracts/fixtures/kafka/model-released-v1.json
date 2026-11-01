@@ -1,0 +1,12 @@
+{
+  "event_id": "a1111111-2222-4333-8444-555555555503",
+  "event_type": "model.released.v1",
+  "schema_version": 1,
+  "occurred_at": "2026-10-16T05:02:00Z",
+  "promotion_id": "91111111-2222-4333-8444-555555555503",
+  "model_name": "scratch-tiny-lm",
+  "release_generation": 2,
+  "target_revision_tag": "scratch-tiny-r0",
+  "previous_revision_tag": "fake-deterministic-r1",
+  "artifact_checksum": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+}
