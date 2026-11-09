@@ -1,0 +1,29 @@
+{
+  "accepted_record_count": 120,
+  "accepted_utf8_bytes": 43750,
+  "acquisition_timestamp_utc": "2026-10-16T00:00:00Z",
+  "corpus_sha256": "becf8557d4f032dfd3956b4c860ccce538c1c3a5d0f6b6d3cef4723ebca4b7fe",
+  "dataset_id": "scratch-curated-tinystories-v1",
+  "duplicate_record_count": 2,
+  "exclude_private_chat_and_uploads": true,
+  "filtering_code_version": "scratchlm.data.ingestion.v1",
+  "license_reference": "https://cdla.dev/sharing-1-0/",
+  "license_spdx": "CDLA-Sharing-1.0",
+  "normalization_policy": "Unicode NFC, LF line endings, control-char stripping, horizontal whitespace collapse, canonical NFKC casefolded deduplication.",
+  "raw_record_count": 125,
+  "redistribution_policy": "Permitted with attribution and manifest provenance preservation; zero private user data.",
+  "rejected_record_count": 3,
+  "schema_version": "1.0.0",
+  "source_name": "Self-Authored Curated TinyStories-Style Benchmark & Pretraining Corpus",
+  "source_revision": "curated-2026-10-16-r1",
+  "source_url": "https://huggingface.co/datasets/roneneldan/TinyStories (schema/task inspiration; local curated deterministic corpus)",
+  "storage_budget": {
+    "max_cache_bytes": 10485760,
+    "max_processed_bytes": 10485760,
+    "max_raw_bytes": 10485760,
+    "max_record_chars": 2048,
+    "max_records": 5000,
+    "min_record_chars": 40
+  },
+  "subset_selection_rule": "Deterministic 120-document narrative grid filtered by length [40, 2048] chars and canonical SHA-256 deduplication."
+}
