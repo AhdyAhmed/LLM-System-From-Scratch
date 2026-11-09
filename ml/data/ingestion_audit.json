@@ -1,0 +1,34 @@
+{
+  "accepted_records": 120,
+  "accepted_utf8_bytes": 43750,
+  "corpus_sha256": "becf8557d4f032dfd3956b4c860ccce538c1c3a5d0f6b6d3cef4723ebca4b7fe",
+  "duplicate_doc_ids": [
+    {
+      "duplicate_doc_id": "story-dup-exact-0001",
+      "kept_doc_id": "story-0001",
+      "match_type": "exact"
+    },
+    {
+      "duplicate_doc_id": "story-dup-canonical-0002",
+      "kept_doc_id": "story-0002",
+      "match_type": "canonical_normalized"
+    }
+  ],
+  "duplicate_records": 2,
+  "raw_records_seen": 125,
+  "rejected_doc_ids_by_reason": {
+    "duplicate_doc_id": [],
+    "empty_or_too_short": [
+      "story-reject-short-0001"
+    ],
+    "exceeds_max_record_chars": [
+      "story-reject-oversized-0001"
+    ],
+    "private_or_disallowed_source": [
+      "story-reject-private-0001"
+    ]
+  },
+  "rejected_records": 3,
+  "stop_reason": null,
+  "stopped_by_cap": false
+}
