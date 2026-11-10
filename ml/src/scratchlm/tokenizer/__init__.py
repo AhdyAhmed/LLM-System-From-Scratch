@@ -1,5 +1,14 @@
 """From-scratch byte-level and BPE tokenizers, special tokens, and incremental UTF-8 decoding."""
 
+from scratchlm.tokenizer.bpe_tokenizer import (
+    BPEMergeRule,
+    BPETokenizer,
+    BpeIncrementalUtf8StreamDecoder,
+    TokenizerCompressionStats,
+    apply_merge_to_sequence,
+    count_adjacent_pairs,
+    select_best_pair,
+)
 from scratchlm.tokenizer.byte_tokenizer import (
     ASSISTANT_TOKEN_ID,
     BOS_TOKEN_ID,
@@ -21,17 +30,24 @@ from scratchlm.tokenizer.byte_tokenizer import (
 __all__ = [
     "ASSISTANT_TOKEN_ID",
     "BOS_TOKEN_ID",
+    "BPEMergeRule",
+    "BPETokenizer",
     "BYTE_VOCAB_SIZE",
+    "BpeIncrementalUtf8StreamDecoder",
+    "ByteTokenizer",
     "CONTEXT_TOKEN_ID",
     "END_TURN_TOKEN_ID",
     "EOS_TOKEN_ID",
     "IGNORE_INDEX",
+    "IncrementalUtf8TokenStreamDecoder",
     "PAD_TOKEN_ID",
     "SPECIAL_TOKENS",
     "SYSTEM_TOKEN_ID",
-    "USER_TOKEN_ID",
-    "ByteTokenizer",
-    "IncrementalUtf8TokenStreamDecoder",
     "ShiftedBatch",
+    "TokenizerCompressionStats",
+    "USER_TOKEN_ID",
+    "apply_merge_to_sequence",
     "build_shifted_next_token_batch",
+    "count_adjacent_pairs",
+    "select_best_pair",
 ]
