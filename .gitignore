@@ -42,7 +42,10 @@ ml/data/raw/
 ml/data/processed/
 ml/data/shards/
 ml/checkpoints/
-ml/artifacts/
+ml/artifacts/*
+!ml/artifacts/tokenizer/
+ml/artifacts/tokenizer/*
+!ml/artifacts/tokenizer/*.json
 mlflow-artifacts/
 airflow-logs/
 uploads/

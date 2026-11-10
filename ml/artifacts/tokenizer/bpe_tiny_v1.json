@@ -1,0 +1,2006 @@
+{
+  "base_byte_vocab_size": 256,
+  "merges": [
+    {
+      "merged_bytes_hex": "2074",
+      "new_token_id": 264,
+      "rank": 0,
+      "token_id_a": 32,
+      "token_id_b": 116,
+      "training_frequency": 930
+    },
+    {
+      "merged_bytes_hex": "6572",
+      "new_token_id": 265,
+      "rank": 1,
+      "token_id_a": 101,
+      "token_id_b": 114,
+      "training_frequency": 823
+    },
+    {
+      "merged_bytes_hex": "207468",
+      "new_token_id": 266,
+      "rank": 2,
+      "token_id_a": 264,
+      "token_id_b": 104,
+      "training_frequency": 677
+    },
+    {
+      "merged_bytes_hex": "2061",
+      "new_token_id": 267,
+      "rank": 3,
+      "token_id_a": 32,
+      "token_id_b": 97,
+      "training_frequency": 609
+    },
+    {
+      "merged_bytes_hex": "6564",
+      "new_token_id": 268,
+      "rank": 4,
+      "token_id_a": 101,
+      "token_id_b": 100,
+      "training_frequency": 557
+    },
+    {
+      "merged_bytes_hex": "696e",
+      "new_token_id": 269,
+      "rank": 5,
+      "token_id_a": 105,
+      "token_id_b": 110,
+      "training_frequency": 530
+    },
+    {
+      "merged_bytes_hex": "2063",
+      "new_token_id": 270,
+      "rank": 6,
+      "token_id_a": 32,
+      "token_id_b": 99,
+      "training_frequency": 467
+    },
+    {
+      "merged_bytes_hex": "20746865",
+      "new_token_id": 271,
+      "rank": 7,
+      "token_id_a": 266,
+      "token_id_b": 101,
+      "training_frequency": 452
+    },
+    {
+      "merged_bytes_hex": "6f6e",
+      "new_token_id": 272,
+      "rank": 8,
+      "token_id_a": 111,
+      "token_id_b": 110,
+      "training_frequency": 445
+    },
+    {
+      "merged_bytes_hex": "6172",
+      "new_token_id": 273,
+      "rank": 9,
+      "token_id_a": 97,
+      "token_id_b": 114,
+      "training_frequency": 442
+    },
+    {
+      "merged_bytes_hex": "656e",
+      "new_token_id": 274,
+      "rank": 10,
+      "token_id_a": 101,
+      "token_id_b": 110,
+      "training_frequency": 433
+    },
+    {
+      "merged_bytes_hex": "6174",
+      "new_token_id": 275,
+      "rank": 11,
+      "token_id_a": 97,
+      "token_id_b": 116,
+      "training_frequency": 416
+    },
+    {
+      "merged_bytes_hex": "2073",
+      "new_token_id": 276,
+      "rank": 12,
+      "token_id_a": 32,
+      "token_id_b": 115,
+      "training_frequency": 295
+    },
+    {
+      "merged_bytes_hex": "6576",
+      "new_token_id": 277,
+      "rank": 13,
+      "token_id_a": 101,
+      "token_id_b": 118,
+      "training_frequency": 295
+    },
+    {
+      "merged_bytes_hex": "2062",
+      "new_token_id": 278,
+      "rank": 14,
+      "token_id_a": 32,
+      "token_id_b": 98,
+      "training_frequency": 268
+    },
+    {
+      "merged_bytes_hex": "2077",
+      "new_token_id": 279,
+      "rank": 15,
+      "token_id_a": 32,
+      "token_id_b": 119,
+      "training_frequency": 249
+    },
+    {
+      "merged_bytes_hex": "6d65",
+      "new_token_id": 280,
+      "rank": 16,
+      "token_id_a": 109,
+      "token_id_b": 101,
+      "training_frequency": 248
+    },
+    {
+      "merged_bytes_hex": "2072",
+      "new_token_id": 281,
+      "rank": 17,
+      "token_id_a": 32,
+      "token_id_b": 114,
+      "training_frequency": 242
+    },
+    {
+      "merged_bytes_hex": "696e67",
+      "new_token_id": 282,
+      "rank": 18,
+      "token_id_a": 269,
+      "token_id_b": 103,
+      "training_frequency": 241
+    },
+    {
+      "merged_bytes_hex": "206576",
+      "new_token_id": 283,
+      "rank": 19,
+      "token_id_a": 32,
+      "token_id_b": 277,
+      "training_frequency": 235
+    },
+    {
+      "merged_bytes_hex": "657279",
+      "new_token_id": 284,
+      "rank": 20,
+      "token_id_a": 265,
+      "token_id_b": 121,
+      "training_frequency": 235
+    },
+    {
+      "merged_bytes_hex": "6f72",
+      "new_token_id": 285,
+      "rank": 21,
+      "token_id_a": 111,
+      "token_id_b": 114,
+      "training_frequency": 207
+    },
+    {
+      "merged_bytes_hex": "206d",
+      "new_token_id": 286,
+      "rank": 22,
+      "token_id_a": 32,
+      "token_id_b": 109,
+      "training_frequency": 202
+    },
+    {
+      "merged_bytes_hex": "6c6f",
+      "new_token_id": 287,
+      "rank": 23,
+      "token_id_a": 108,
+      "token_id_b": 111,
+      "training_frequency": 200
+    },
+    {
+      "merged_bytes_hex": "65726564",
+      "new_token_id": 288,
+      "rank": 24,
+      "token_id_a": 265,
+      "token_id_b": 268,
+      "training_frequency": 192
+    },
+    {
+      "merged_bytes_hex": "2074686174",
+      "new_token_id": 289,
+      "rank": 25,
+      "token_id_a": 266,
+      "token_id_b": 275,
+      "training_frequency": 192
+    },
+    {
+      "merged_bytes_hex": "2070",
+      "new_token_id": 290,
+      "rank": 26,
+      "token_id_a": 32,
+      "token_id_b": 112,
+      "training_frequency": 188
+    },
+    {
+      "merged_bytes_hex": "6e64",
+      "new_token_id": 291,
+      "rank": 27,
+      "token_id_a": 110,
+      "token_id_b": 100,
+      "training_frequency": 180
+    },
+    {
+      "merged_bytes_hex": "6173",
+      "new_token_id": 292,
+      "rank": 28,
+      "token_id_a": 97,
+      "token_id_b": 115,
+      "training_frequency": 179
+    },
+    {
+      "merged_bytes_hex": "6573",
+      "new_token_id": 293,
+      "rank": 29,
+      "token_id_a": 101,
+      "token_id_b": 115,
+      "training_frequency": 175
+    },
+    {
+      "merged_bytes_hex": "7269",
+      "new_token_id": 294,
+      "rank": 30,
+      "token_id_a": 114,
+      "token_id_b": 105,
+      "training_frequency": 174
+    },
+    {
+      "merged_bytes_hex": "2067",
+      "new_token_id": 295,
+      "rank": 31,
+      "token_id_a": 32,
+      "token_id_b": 103,
+      "training_frequency": 171
+    },
+    {
+      "merged_bytes_hex": "20696e",
+      "new_token_id": 296,
+      "rank": 32,
+      "token_id_a": 32,
+      "token_id_b": 269,
+      "training_frequency": 165
+    },
+    {
+      "merged_bytes_hex": "2068",
+      "new_token_id": 297,
+      "rank": 33,
+      "token_id_a": 32,
+      "token_id_b": 104,
+      "training_frequency": 161
+    },
+    {
+      "merged_bytes_hex": "20636c6f",
+      "new_token_id": 298,
+      "rank": 34,
+      "token_id_a": 270,
+      "token_id_b": 287,
+      "training_frequency": 161
+    },
+    {
+      "merged_bytes_hex": "6f6f",
+      "new_token_id": 299,
+      "rank": 35,
+      "token_id_a": 111,
+      "token_id_b": 111,
+      "training_frequency": 159
+    },
+    {
+      "merged_bytes_hex": "746572",
+      "new_token_id": 300,
+      "rank": 36,
+      "token_id_a": 116,
+      "token_id_b": 265,
+      "training_frequency": 155
+    },
+    {
+      "merged_bytes_hex": "206c",
+      "new_token_id": 301,
+      "rank": 37,
+      "token_id_a": 32,
+      "token_id_b": 108,
+      "training_frequency": 148
+    },
+    {
+      "merged_bytes_hex": "20616e64",
+      "new_token_id": 302,
+      "rank": 38,
+      "token_id_a": 267,
+      "token_id_b": 291,
+      "training_frequency": 140
+    },
+    {
+      "merged_bytes_hex": "206576657279",
+      "new_token_id": 303,
+      "rank": 39,
+      "token_id_a": 283,
+      "token_id_b": 284,
+      "training_frequency": 139
+    },
+    {
+      "merged_bytes_hex": "656c",
+      "new_token_id": 304,
+      "rank": 40,
+      "token_id_a": 101,
+      "token_id_b": 108,
+      "training_frequency": 138
+    },
+    {
+      "merged_bytes_hex": "6365",
+      "new_token_id": 305,
+      "rank": 41,
+      "token_id_a": 99,
+      "token_id_b": 101,
+      "training_frequency": 136
+    },
+    {
+      "merged_bytes_hex": "6e6f",
+      "new_token_id": 306,
+      "rank": 42,
+      "token_id_a": 110,
+      "token_id_b": 111,
+      "training_frequency": 133
+    },
+    {
+      "merged_bytes_hex": "2066",
+      "new_token_id": 307,
+      "rank": 43,
+      "token_id_a": 32,
+      "token_id_b": 102,
+      "training_frequency": 129
+    },
+    {
+      "merged_bytes_hex": "7261",
+      "new_token_id": 308,
+      "rank": 44,
+      "token_id_a": 114,
+      "token_id_b": 97,
+      "training_frequency": 127
+    },
+    {
+      "merged_bytes_hex": "696c",
+      "new_token_id": 309,
+      "rank": 45,
+      "token_id_a": 105,
+      "token_id_b": 108,
+      "training_frequency": 124
+    },
+    {
+      "merged_bytes_hex": "6473",
+      "new_token_id": 310,
+      "rank": 46,
+      "token_id_a": 100,
+      "token_id_b": 115,
+      "training_frequency": 121
+    },
+    {
+      "merged_bytes_hex": "656e696e67",
+      "new_token_id": 311,
+      "rank": 47,
+      "token_id_a": 274,
+      "token_id_b": 282,
+      "training_frequency": 121
+    },
+    {
+      "merged_bytes_hex": "6d62",
+      "new_token_id": 312,
+      "rank": 48,
+      "token_id_a": 109,
+      "token_id_b": 98,
+      "training_frequency": 120
+    },
+    {
+      "merged_bytes_hex": "20636172",
+      "new_token_id": 313,
+      "rank": 49,
+      "token_id_a": 270,
+      "token_id_b": 273,
+      "training_frequency": 120
+    },
+    {
+      "merged_bytes_hex": "2075",
+      "new_token_id": 314,
+      "rank": 50,
+      "token_id_a": 32,
+      "token_id_b": 117,
+      "training_frequency": 118
+    },
+    {
+      "merged_bytes_hex": "207265",
+      "new_token_id": 315,
+      "rank": 51,
+      "token_id_a": 281,
+      "token_id_b": 101,
+      "training_frequency": 117
+    },
+    {
+      "merged_bytes_hex": "6f6e65",
+      "new_token_id": 316,
+      "rank": 52,
+      "token_id_a": 272,
+      "token_id_b": 101,
+      "training_frequency": 115
+    },
+    {
+      "merged_bytes_hex": "6e6f6f6e",
+      "new_token_id": 317,
+      "rank": 53,
+      "token_id_a": 306,
+      "token_id_b": 272,
+      "training_frequency": 115
+    },
+    {
+      "merged_bytes_hex": "207469",
+      "new_token_id": 318,
+      "rank": 54,
+      "token_id_a": 264,
+      "token_id_b": 105,
+      "training_frequency": 114
+    },
+    {
+      "merged_bytes_hex": "68656e",
+      "new_token_id": 319,
+      "rank": 55,
+      "token_id_a": 104,
+      "token_id_b": 274,
+      "training_frequency": 109
+    },
+    {
+      "merged_bytes_hex": "7374",
+      "new_token_id": 320,
+      "rank": 56,
+      "token_id_a": 115,
+      "token_id_b": 116,
+      "training_frequency": 103
+    },
+    {
+      "merged_bytes_hex": "2042",
+      "new_token_id": 321,
+      "rank": 57,
+      "token_id_a": 32,
+      "token_id_b": 66,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "2045",
+      "new_token_id": 322,
+      "rank": 58,
+      "token_id_a": 32,
+      "token_id_b": 69,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "2057",
+      "new_token_id": 323,
+      "rank": 59,
+      "token_id_a": 32,
+      "token_id_b": 87,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "4f6e",
+      "new_token_id": 324,
+      "rank": 60,
+      "token_id_a": 79,
+      "token_id_b": 110,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "66746572",
+      "new_token_id": 325,
+      "rank": 61,
+      "token_id_a": 102,
+      "token_id_b": 300,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "6865726564",
+      "new_token_id": 326,
+      "rank": 62,
+      "token_id_a": 104,
+      "token_id_b": 288,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "6e696e67",
+      "new_token_id": 327,
+      "rank": 63,
+      "token_id_a": 110,
+      "token_id_b": 282,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "6f75",
+      "new_token_id": 328,
+      "rank": 64,
+      "token_id_a": 111,
+      "token_id_b": 117,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "706f6e",
+      "new_token_id": 329,
+      "rank": 65,
+      "token_id_a": 112,
+      "token_id_b": 272,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "756473",
+      "new_token_id": 330,
+      "rank": 66,
+      "token_id_a": 117,
+      "token_id_b": 310,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "76657279",
+      "new_token_id": 331,
+      "rank": 67,
+      "token_id_a": 118,
+      "token_id_b": 284,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "206166746572",
+      "new_token_id": 332,
+      "rank": 68,
+      "token_id_a": 267,
+      "token_id_b": 325,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "61746865726564",
+      "new_token_id": 333,
+      "rank": 69,
+      "token_id_a": 275,
+      "token_id_b": 326,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "20776173",
+      "new_token_id": 334,
+      "rank": 70,
+      "token_id_a": 279,
+      "token_id_b": 292,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "6d656d62",
+      "new_token_id": 335,
+      "rank": 71,
+      "token_id_a": 280,
+      "token_id_b": 312,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "206576656e696e67",
+      "new_token_id": 336,
+      "rank": 72,
+      "token_id_a": 283,
+      "token_id_b": 311,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "6f726e696e67",
+      "new_token_id": 337,
+      "rank": 73,
+      "token_id_a": 285,
+      "token_id_b": 327,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "206d6f726e696e67",
+      "new_token_id": 338,
+      "rank": 74,
+      "token_id_a": 286,
+      "token_id_b": 337,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "72696564",
+      "new_token_id": 339,
+      "rank": 75,
+      "token_id_a": 294,
+      "token_id_b": 268,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "206761746865726564",
+      "new_token_id": 340,
+      "rank": 76,
+      "token_id_a": 295,
+      "token_id_b": 333,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "20636c6f756473",
+      "new_token_id": 341,
+      "rank": 77,
+      "token_id_a": 298,
+      "token_id_b": 330,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "2065766572796f6e65",
+      "new_token_id": 342,
+      "rank": 78,
+      "token_id_a": 303,
+      "token_id_b": 316,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "2063617272696564",
+      "new_token_id": 343,
+      "rank": 79,
+      "token_id_a": 313,
+      "token_id_b": 339,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "2075706f6e",
+      "new_token_id": 344,
+      "rank": 80,
+      "token_id_a": 314,
+      "token_id_b": 329,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "2072656d656d62",
+      "new_token_id": 345,
+      "rank": 81,
+      "token_id_a": 315,
+      "token_id_b": 335,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "2074696d65",
+      "new_token_id": 346,
+      "rank": 82,
+      "token_id_a": 318,
+      "token_id_b": 280,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "204279",
+      "new_token_id": 347,
+      "rank": 83,
+      "token_id_a": 321,
+      "token_id_b": 121,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "204576657279",
+      "new_token_id": 348,
+      "rank": 84,
+      "token_id_a": 322,
+      "token_id_b": 331,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "205768656e",
+      "new_token_id": 349,
+      "rank": 85,
+      "token_id_a": 323,
+      "token_id_b": 319,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "4f6e6365",
+      "new_token_id": 350,
+      "rank": 86,
+      "token_id_a": 324,
+      "token_id_b": 305,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "2061667465726e6f6f6e",
+      "new_token_id": 351,
+      "rank": 87,
+      "token_id_a": 332,
+      "token_id_b": 317,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "2072656d656d6265726564",
+      "new_token_id": 352,
+      "rank": 88,
+      "token_id_a": 345,
+      "token_id_b": 288,
+      "training_frequency": 96
+    },
+    {
+      "merged_bytes_hex": "7465",
+      "new_token_id": 353,
+      "rank": 89,
+      "token_id_a": 116,
+      "token_id_b": 101,
+      "training_frequency": 92
+    },
+    {
+      "merged_bytes_hex": "206c69",
+      "new_token_id": 354,
+      "rank": 90,
+      "token_id_a": 301,
+      "token_id_b": 105,
+      "training_frequency": 86
+    },
+    {
+      "merged_bytes_hex": "6d6172",
+      "new_token_id": 355,
+      "rank": 91,
+      "token_id_a": 109,
+      "token_id_b": 273,
+      "training_frequency": 85
+    },
+    {
+      "merged_bytes_hex": "6768",
+      "new_token_id": 356,
+      "rank": 92,
+      "token_id_a": 103,
+      "token_id_b": 104,
+      "training_frequency": 77
+    },
+    {
+      "merged_bytes_hex": "616b",
+      "new_token_id": 357,
+      "rank": 93,
+      "token_id_a": 97,
+      "token_id_b": 107,
+      "training_frequency": 74
+    },
+    {
+      "merged_bytes_hex": "6f70",
+      "new_token_id": 358,
+      "rank": 94,
+      "token_id_a": 111,
+      "token_id_b": 112,
+      "training_frequency": 74
+    },
+    {
+      "merged_bytes_hex": "204d",
+      "new_token_id": 359,
+      "rank": 95,
+      "token_id_a": 32,
+      "token_id_b": 77,
+      "training_frequency": 72
+    },
+    {
+      "merged_bytes_hex": "205a",
+      "new_token_id": 360,
+      "rank": 96,
+      "token_id_a": 32,
+      "token_id_b": 90,
+      "training_frequency": 72
+    },
+    {
+      "merged_bytes_hex": "6179",
+      "new_token_id": 361,
+      "rank": 97,
+      "token_id_a": 97,
+      "token_id_b": 121,
+      "training_frequency": 72
+    },
+    {
+      "merged_bytes_hex": "697261",
+      "new_token_id": 362,
+      "rank": 98,
+      "token_id_a": 105,
+      "token_id_b": 308,
+      "training_frequency": 72
+    },
+    {
+      "merged_bytes_hex": "204d697261",
+      "new_token_id": 363,
+      "rank": 99,
+      "token_id_a": 359,
+      "token_id_b": 362,
+      "training_frequency": 72
+    },
+    {
+      "merged_bytes_hex": "205a6179",
+      "new_token_id": 364,
+      "rank": 100,
+      "token_id_a": 360,
+      "token_id_b": 361,
+      "training_frequency": 72
+    },
+    {
+      "merged_bytes_hex": "205a617964",
+      "new_token_id": 365,
+      "rank": 101,
+      "token_id_a": 364,
+      "token_id_b": 100,
+      "training_frequency": 72
+    },
+    {
+      "merged_bytes_hex": "6c65",
+      "new_token_id": 366,
+      "rank": 102,
+      "token_id_a": 108,
+      "token_id_b": 101,
+      "training_frequency": 71
+    },
+    {
+      "merged_bytes_hex": "204c",
+      "new_token_id": 367,
+      "rank": 103,
+      "token_id_a": 32,
+      "token_id_b": 76,
+      "training_frequency": 68
+    },
+    {
+      "merged_bytes_hex": "6974",
+      "new_token_id": 368,
+      "rank": 104,
+      "token_id_a": 105,
+      "token_id_b": 116,
+      "training_frequency": 68
+    },
+    {
+      "merged_bytes_hex": "696c79",
+      "new_token_id": 369,
+      "rank": 105,
+      "token_id_a": 309,
+      "token_id_b": 121,
+      "training_frequency": 68
+    },
+    {
+      "merged_bytes_hex": "204c696c79",
+      "new_token_id": 370,
+      "rank": 106,
+      "token_id_a": 367,
+      "token_id_b": 369,
+      "training_frequency": 68
+    },
+    {
+      "merged_bytes_hex": "6f6f64",
+      "new_token_id": 371,
+      "rank": 107,
+      "token_id_a": 299,
+      "token_id_b": 100,
+      "training_frequency": 65
+    },
+    {
+      "merged_bytes_hex": "6c6573",
+      "new_token_id": 372,
+      "rank": 108,
+      "token_id_a": 108,
+      "token_id_b": 293,
+      "training_frequency": 64
+    },
+    {
+      "merged_bytes_hex": "6c6c",
+      "new_token_id": 373,
+      "rank": 109,
+      "token_id_a": 108,
+      "token_id_b": 108,
+      "training_frequency": 63
+    },
+    {
+      "merged_bytes_hex": "6479",
+      "new_token_id": 374,
+      "rank": 110,
+      "token_id_a": 100,
+      "token_id_b": 121,
+      "training_frequency": 61
+    },
+    {
+      "merged_bytes_hex": "6f6f6b",
+      "new_token_id": 375,
+      "rank": 111,
+      "token_id_a": 299,
+      "token_id_b": 107,
+      "training_frequency": 61
+    },
+    {
+      "merged_bytes_hex": "204f",
+      "new_token_id": 376,
+      "rank": 112,
+      "token_id_a": 32,
+      "token_id_b": 79,
+      "training_frequency": 60
+    },
+    {
+      "merged_bytes_hex": "2054",
+      "new_token_id": 377,
+      "rank": 113,
+      "token_id_a": 32,
+      "token_id_b": 84,
+      "training_frequency": 60
+    },
+    {
+      "merged_bytes_hex": "6971",
+      "new_token_id": 378,
+      "rank": 114,
+      "token_id_a": 105,
+      "token_id_b": 113,
+      "training_frequency": 60
+    },
+    {
+      "merged_bytes_hex": "61726971",
+      "new_token_id": 379,
+      "rank": 115,
+      "token_id_a": 273,
+      "token_id_b": 378,
+      "training_frequency": 60
+    },
+    {
+      "merged_bytes_hex": "204f6d6172",
+      "new_token_id": 380,
+      "rank": 116,
+      "token_id_a": 376,
+      "token_id_b": 355,
+      "training_frequency": 60
+    },
+    {
+      "merged_bytes_hex": "205461726971",
+      "new_token_id": 381,
+      "rank": 117,
+      "token_id_a": 377,
+      "token_id_b": 379,
+      "training_frequency": 60
+    },
+    {
+      "merged_bytes_hex": "206272",
+      "new_token_id": 382,
+      "rank": 118,
+      "token_id_a": 278,
+      "token_id_b": 114,
+      "training_frequency": 59
+    },
+    {
+      "merged_bytes_hex": "6f66",
+      "new_token_id": 383,
+      "rank": 119,
+      "token_id_a": 111,
+      "token_id_b": 102,
+      "training_frequency": 58
+    },
+    {
+      "merged_bytes_hex": "616e",
+      "new_token_id": 384,
+      "rank": 120,
+      "token_id_a": 97,
+      "token_id_b": 110,
+      "training_frequency": 57
+    },
+    {
+      "merged_bytes_hex": "20746f",
+      "new_token_id": 385,
+      "rank": 121,
+      "token_id_a": 264,
+      "token_id_b": 111,
+      "training_frequency": 57
+    },
+    {
+      "merged_bytes_hex": "6574",
+      "new_token_id": 386,
+      "rank": 122,
+      "token_id_a": 101,
+      "token_id_b": 116,
+      "training_frequency": 56
+    },
+    {
+      "merged_bytes_hex": "6964",
+      "new_token_id": 387,
+      "rank": 123,
+      "token_id_a": 105,
+      "token_id_b": 100,
+      "training_frequency": 56
+    },
+    {
+      "merged_bytes_hex": "2068656c",
+      "new_token_id": 388,
+      "rank": 124,
+      "token_id_a": 297,
+      "token_id_b": 304,
+      "training_frequency": 56
+    },
+    {
+      "merged_bytes_hex": "206b",
+      "new_token_id": 389,
+      "rank": 125,
+      "token_id_a": 32,
+      "token_id_b": 107,
+      "training_frequency": 55
+    },
+    {
+      "merged_bytes_hex": "676874",
+      "new_token_id": 390,
+      "rank": 126,
+      "token_id_a": 356,
+      "token_id_b": 116,
+      "training_frequency": 55
+    },
+    {
+      "merged_bytes_hex": "6170",
+      "new_token_id": 391,
+      "rank": 127,
+      "token_id_a": 97,
+      "token_id_b": 112,
+      "training_frequency": 54
+    },
+    {
+      "merged_bytes_hex": "656e74",
+      "new_token_id": 392,
+      "rank": 128,
+      "token_id_a": 274,
+      "token_id_b": 116,
+      "training_frequency": 54
+    },
+    {
+      "merged_bytes_hex": "204e",
+      "new_token_id": 393,
+      "rank": 129,
+      "token_id_a": 32,
+      "token_id_b": 78,
+      "training_frequency": 52
+    },
+    {
+      "merged_bytes_hex": "6675",
+      "new_token_id": 394,
+      "rank": 130,
+      "token_id_a": 102,
+      "token_id_b": 117,
+      "training_frequency": 52
+    },
+    {
+      "merged_bytes_hex": "6f7261",
+      "new_token_id": 395,
+      "rank": 131,
+      "token_id_a": 285,
+      "token_id_b": 97,
+      "training_frequency": 52
+    },
+    {
+      "merged_bytes_hex": "204e6f7261",
+      "new_token_id": 396,
+      "rank": 132,
+      "token_id_a": 393,
+      "token_id_b": 395,
+      "training_frequency": 52
+    },
+    {
+      "merged_bytes_hex": "66756c",
+      "new_token_id": 397,
+      "rank": 133,
+      "token_id_a": 394,
+      "token_id_b": 108,
+      "training_frequency": 52
+    },
+    {
+      "merged_bytes_hex": "7073",
+      "new_token_id": 398,
+      "rank": 134,
+      "token_id_a": 112,
+      "token_id_b": 115,
+      "training_frequency": 50
+    },
+    {
+      "merged_bytes_hex": "20736d",
+      "new_token_id": 399,
+      "rank": 135,
+      "token_id_a": 276,
+      "token_id_b": 109,
+      "training_frequency": 50
+    },
+    {
+      "merged_bytes_hex": "20737465",
+      "new_token_id": 400,
+      "rank": 136,
+      "token_id_a": 276,
+      "token_id_b": 353,
+      "training_frequency": 50
+    },
+    {
+      "merged_bytes_hex": "20636c6f73",
+      "new_token_id": 401,
+      "rank": 137,
+      "token_id_a": 298,
+      "token_id_b": 115,
+      "training_frequency": 50
+    },
+    {
+      "merged_bytes_hex": "206f6e",
+      "new_token_id": 402,
+      "rank": 138,
+      "token_id_a": 32,
+      "token_id_b": 272,
+      "training_frequency": 49
+    },
+    {
+      "merged_bytes_hex": "726f",
+      "new_token_id": 403,
+      "rank": 139,
+      "token_id_a": 114,
+      "token_id_b": 111,
+      "training_frequency": 49
+    },
+    {
+      "merged_bytes_hex": "657373",
+      "new_token_id": 404,
+      "rank": 140,
+      "token_id_a": 293,
+      "token_id_b": 115,
+      "training_frequency": 47
+    },
+    {
+      "merged_bytes_hex": "726e",
+      "new_token_id": 405,
+      "rank": 141,
+      "token_id_a": 114,
+      "token_id_b": 110,
+      "training_frequency": 46
+    },
+    {
+      "merged_bytes_hex": "75726e",
+      "new_token_id": 406,
+      "rank": 142,
+      "token_id_a": 117,
+      "token_id_b": 405,
+      "training_frequency": 46
+    },
+    {
+      "merged_bytes_hex": "617264",
+      "new_token_id": 407,
+      "rank": 143,
+      "token_id_a": 273,
+      "token_id_b": 100,
+      "training_frequency": 46
+    },
+    {
+      "merged_bytes_hex": "616b6573",
+      "new_token_id": 408,
+      "rank": 144,
+      "token_id_a": 357,
+      "token_id_b": 293,
+      "training_frequency": 46
+    },
+    {
+      "merged_bytes_hex": "6176",
+      "new_token_id": 409,
+      "rank": 145,
+      "token_id_a": 97,
+      "token_id_b": 118,
+      "training_frequency": 44
+    },
+    {
+      "merged_bytes_hex": "6772",
+      "new_token_id": 410,
+      "rank": 146,
+      "token_id_a": 103,
+      "token_id_b": 114,
+      "training_frequency": 44
+    },
+    {
+      "merged_bytes_hex": "636564",
+      "new_token_id": 411,
+      "rank": 147,
+      "token_id_a": 99,
+      "token_id_b": 268,
+      "training_frequency": 43
+    },
+    {
+      "merged_bytes_hex": "6f6c",
+      "new_token_id": 412,
+      "rank": 148,
+      "token_id_a": 111,
+      "token_id_b": 108,
+      "training_frequency": 43
+    },
+    {
+      "merged_bytes_hex": "7665",
+      "new_token_id": 413,
+      "rank": 149,
+      "token_id_a": 118,
+      "token_id_b": 101,
+      "training_frequency": 43
+    },
+    {
+      "merged_bytes_hex": "617469",
+      "new_token_id": 414,
+      "rank": 150,
+      "token_id_a": 275,
+      "token_id_b": 105,
+      "training_frequency": 43
+    },
+    {
+      "merged_bytes_hex": "7269656e",
+      "new_token_id": 415,
+      "rank": 151,
+      "token_id_a": 294,
+      "token_id_b": 274,
+      "training_frequency": 43
+    },
+    {
+      "merged_bytes_hex": "20667269656e",
+      "new_token_id": 416,
+      "rank": 152,
+      "token_id_a": 307,
+      "token_id_b": 415,
+      "training_frequency": 43
+    },
+    {
+      "merged_bytes_hex": "6f6f64656e",
+      "new_token_id": 417,
+      "rank": 153,
+      "token_id_a": 371,
+      "token_id_b": 274,
+      "training_frequency": 43
+    },
+    {
+      "merged_bytes_hex": "206e",
+      "new_token_id": 418,
+      "rank": 154,
+      "token_id_a": 32,
+      "token_id_b": 110,
+      "training_frequency": 42
+    },
+    {
+      "merged_bytes_hex": "617262",
+      "new_token_id": 419,
+      "rank": 155,
+      "token_id_a": 273,
+      "token_id_b": 98,
+      "training_frequency": 42
+    },
+    {
+      "merged_bytes_hex": "206d617262",
+      "new_token_id": 420,
+      "rank": 156,
+      "token_id_a": 286,
+      "token_id_b": 419,
+      "training_frequency": 42
+    },
+    {
+      "merged_bytes_hex": "617373",
+      "new_token_id": 421,
+      "rank": 157,
+      "token_id_a": 292,
+      "token_id_b": 115,
+      "training_frequency": 42
+    },
+    {
+      "merged_bytes_hex": "6b6574",
+      "new_token_id": 422,
+      "rank": 158,
+      "token_id_a": 107,
+      "token_id_b": 386,
+      "training_frequency": 41
+    },
+    {
+      "merged_bytes_hex": "20626173",
+      "new_token_id": 423,
+      "rank": 159,
+      "token_id_a": 278,
+      "token_id_b": 292,
+      "training_frequency": 41
+    },
+    {
+      "merged_bytes_hex": "206261736b6574",
+      "new_token_id": 424,
+      "rank": 160,
+      "token_id_a": 423,
+      "token_id_b": 422,
+      "training_frequency": 41
+    },
+    {
+      "merged_bytes_hex": "686f70",
+      "new_token_id": 425,
+      "rank": 161,
+      "token_id_a": 104,
+      "token_id_b": 358,
+      "training_frequency": 39
+    },
+    {
+      "merged_bytes_hex": "6b73",
+      "new_token_id": 426,
+      "rank": 162,
+      "token_id_a": 107,
+      "token_id_b": 115,
+      "training_frequency": 39
+    },
+    {
+      "merged_bytes_hex": "20776f72",
+      "new_token_id": 427,
+      "rank": 163,
+      "token_id_a": 279,
+      "token_id_b": 285,
+      "training_frequency": 39
+    },
+    {
+      "merged_bytes_hex": "6f756e",
+      "new_token_id": 428,
+      "rank": 164,
+      "token_id_a": 328,
+      "token_id_b": 110,
+      "training_frequency": 39
+    },
+    {
+      "merged_bytes_hex": "6b73686f70",
+      "new_token_id": 429,
+      "rank": 165,
+      "token_id_a": 426,
+      "token_id_b": 425,
+      "training_frequency": 39
+    },
+    {
+      "merged_bytes_hex": "20776f726b73686f70",
+      "new_token_id": 430,
+      "rank": 166,
+      "token_id_a": 427,
+      "token_id_b": 429,
+      "training_frequency": 39
+    },
+    {
+      "merged_bytes_hex": "206f66",
+      "new_token_id": 431,
+      "rank": 167,
+      "token_id_a": 32,
+      "token_id_b": 383,
+      "training_frequency": 38
+    },
+    {
+      "merged_bytes_hex": "6167",
+      "new_token_id": 432,
+      "rank": 168,
+      "token_id_a": 97,
+      "token_id_b": 103,
+      "training_frequency": 38
+    },
+    {
+      "merged_bytes_hex": "6565",
+      "new_token_id": 433,
+      "rank": 169,
+      "token_id_a": 101,
+      "token_id_b": 101,
+      "training_frequency": 38
+    },
+    {
+      "merged_bytes_hex": "656c6c",
+      "new_token_id": 434,
+      "rank": 170,
+      "token_id_a": 304,
+      "token_id_b": 108,
+      "training_frequency": 38
+    },
+    {
+      "merged_bytes_hex": "616765",
+      "new_token_id": 435,
+      "rank": 171,
+      "token_id_a": 432,
+      "token_id_b": 101,
+      "training_frequency": 38
+    },
+    {
+      "merged_bytes_hex": "20747261",
+      "new_token_id": 436,
+      "rank": 172,
+      "token_id_a": 264,
+      "token_id_b": 308,
+      "training_frequency": 37
+    },
+    {
+      "merged_bytes_hex": "657273",
+      "new_token_id": 437,
+      "rank": 173,
+      "token_id_a": 265,
+      "token_id_b": 115,
+      "training_frequency": 37
+    },
+    {
+      "merged_bytes_hex": "20726f",
+      "new_token_id": 438,
+      "rank": 174,
+      "token_id_a": 281,
+      "token_id_b": 111,
+      "training_frequency": 37
+    },
+    {
+      "merged_bytes_hex": "7465726e",
+      "new_token_id": 439,
+      "rank": 175,
+      "token_id_a": 300,
+      "token_id_b": 110,
+      "training_frequency": 37
+    },
+    {
+      "merged_bytes_hex": "206c616e",
+      "new_token_id": 440,
+      "rank": 176,
+      "token_id_a": 301,
+      "token_id_b": 384,
+      "training_frequency": 37
+    },
+    {
+      "merged_bytes_hex": "206c616e7465726e",
+      "new_token_id": 441,
+      "rank": 177,
+      "token_id_a": 440,
+      "token_id_b": 439,
+      "training_frequency": 37
+    },
+    {
+      "merged_bytes_hex": "6f6d",
+      "new_token_id": 442,
+      "rank": 178,
+      "token_id_a": 111,
+      "token_id_b": 109,
+      "training_frequency": 36
+    },
+    {
+      "merged_bytes_hex": "756e",
+      "new_token_id": 443,
+      "rank": 179,
+      "token_id_a": 117,
+      "token_id_b": 110,
+      "training_frequency": 36
+    },
+    {
+      "merged_bytes_hex": "207374",
+      "new_token_id": 444,
+      "rank": 180,
+      "token_id_a": 276,
+      "token_id_b": 116,
+      "training_frequency": 36
+    },
+    {
+      "merged_bytes_hex": "20746f77",
+      "new_token_id": 445,
+      "rank": 181,
+      "token_id_a": 385,
+      "token_id_b": 119,
+      "training_frequency": 36
+    },
+    {
+      "merged_bytes_hex": "706572",
+      "new_token_id": 446,
+      "rank": 182,
+      "token_id_a": 112,
+      "token_id_b": 265,
+      "training_frequency": 33
+    },
+    {
+      "merged_bytes_hex": "20726f6f",
+      "new_token_id": 447,
+      "rank": 183,
+      "token_id_a": 281,
+      "token_id_b": 299,
+      "training_frequency": 33
+    },
+    {
+      "merged_bytes_hex": "206b6974",
+      "new_token_id": 448,
+      "rank": 184,
+      "token_id_a": 389,
+      "token_id_b": 368,
+      "training_frequency": 33
+    },
+    {
+      "merged_bytes_hex": "61726d",
+      "new_token_id": 449,
+      "rank": 185,
+      "token_id_a": 273,
+      "token_id_b": 109,
+      "training_frequency": 32
+    },
+    {
+      "merged_bytes_hex": "207761726d",
+      "new_token_id": 450,
+      "rank": 186,
+      "token_id_a": 279,
+      "token_id_b": 449,
+      "training_frequency": 32
+    },
+    {
+      "merged_bytes_hex": "616b6572",
+      "new_token_id": 451,
+      "rank": 187,
+      "token_id_a": 357,
+      "token_id_b": 265,
+      "training_frequency": 28
+    },
+    {
+      "merged_bytes_hex": "616c6c",
+      "new_token_id": 452,
+      "rank": 188,
+      "token_id_a": 97,
+      "token_id_b": 373,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "616479",
+      "new_token_id": 453,
+      "rank": 189,
+      "token_id_a": 97,
+      "token_id_b": 374,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "61636564",
+      "new_token_id": 454,
+      "rank": 190,
+      "token_id_a": 97,
+      "token_id_b": 411,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "6368",
+      "new_token_id": 455,
+      "rank": 191,
+      "token_id_a": 99,
+      "token_id_b": 104,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "6c61636564",
+      "new_token_id": 456,
+      "rank": 192,
+      "token_id_a": 108,
+      "token_id_b": 454,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "746f",
+      "new_token_id": 457,
+      "rank": 193,
+      "token_id_a": 116,
+      "token_id_b": 111,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "757a",
+      "new_token_id": 458,
+      "rank": 194,
+      "token_id_a": 117,
+      "token_id_b": 122,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "776f6f64656e",
+      "new_token_id": 459,
+      "rank": 195,
+      "token_id_a": 119,
+      "token_id_b": 417,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "7a6c6573",
+      "new_token_id": 460,
+      "rank": 196,
+      "token_id_a": 122,
+      "token_id_b": 372,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "207475726e",
+      "new_token_id": 461,
+      "rank": 197,
+      "token_id_a": 264,
+      "token_id_b": 406,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20746865776f6f64656e",
+      "new_token_id": 462,
+      "rank": 198,
+      "token_id_a": 271,
+      "token_id_b": 459,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "656e6365",
+      "new_token_id": 463,
+      "rank": 199,
+      "token_id_a": 274,
+      "token_id_b": 305,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "61746368",
+      "new_token_id": 464,
+      "rank": 200,
+      "token_id_a": 275,
+      "token_id_b": 455,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20736f6c",
+      "new_token_id": 465,
+      "rank": 201,
+      "token_id_a": 276,
+      "token_id_b": 412,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20626f6f6b",
+      "new_token_id": 466,
+      "rank": 202,
+      "token_id_a": 278,
+      "token_id_b": 375,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "2070726f",
+      "new_token_id": 467,
+      "rank": 203,
+      "token_id_a": 290,
+      "token_id_b": 403,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "2070617469",
+      "new_token_id": 468,
+      "rank": 204,
+      "token_id_a": 290,
+      "token_id_b": 414,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "2070616765",
+      "new_token_id": 469,
+      "rank": 205,
+      "token_id_a": 290,
+      "token_id_b": 435,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20706c61636564",
+      "new_token_id": 470,
+      "rank": 206,
+      "token_id_a": 290,
+      "token_id_b": 456,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "2070757a",
+      "new_token_id": 471,
+      "rank": 207,
+      "token_id_a": 290,
+      "token_id_b": 458,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20696e746f",
+      "new_token_id": 472,
+      "rank": 208,
+      "token_id_a": 296,
+      "token_id_b": 457,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "2068617264",
+      "new_token_id": 473,
+      "rank": 209,
+      "token_id_a": 297,
+      "token_id_b": 407,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "206c61746368",
+      "new_token_id": 474,
+      "rank": 210,
+      "token_id_a": 301,
+      "token_id_b": 464,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "656c79",
+      "new_token_id": 475,
+      "rank": 211,
+      "token_id_a": 304,
+      "token_id_b": 121,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20666f75",
+      "new_token_id": 476,
+      "rank": 212,
+      "token_id_a": 307,
+      "token_id_b": 328,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "696c6564",
+      "new_token_id": 477,
+      "rank": 213,
+      "token_id_a": 309,
+      "token_id_b": 268,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "7374656e696e67",
+      "new_token_id": 478,
+      "rank": 214,
+      "token_id_a": 320,
+      "token_id_b": 311,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "206c697374656e696e67",
+      "new_token_id": 479,
+      "rank": 215,
+      "token_id_a": 354,
+      "token_id_b": 478,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "6d61726b",
+      "new_token_id": 480,
+      "rank": 216,
+      "token_id_a": 355,
+      "token_id_b": 107,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "2068656c7073",
+      "new_token_id": 481,
+      "rank": 217,
+      "token_id_a": 388,
+      "token_id_b": 398,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20736d616c6c",
+      "new_token_id": 482,
+      "rank": 218,
+      "token_id_a": 399,
+      "token_id_b": 452,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20736d696c6564",
+      "new_token_id": 483,
+      "rank": 219,
+      "token_id_a": 399,
+      "token_id_b": 477,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "207374657073",
+      "new_token_id": 484,
+      "rank": 220,
+      "token_id_a": 400,
+      "token_id_b": 398,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20737465616479",
+      "new_token_id": 485,
+      "rank": 221,
+      "token_id_a": 400,
+      "token_id_b": 453,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20636c6f736564",
+      "new_token_id": 486,
+      "rank": 222,
+      "token_id_a": 401,
+      "token_id_b": 268,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20636c6f73656c79",
+      "new_token_id": 487,
+      "rank": 223,
+      "token_id_a": 401,
+      "token_id_b": 475,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "6772657373",
+      "new_token_id": 488,
+      "rank": 224,
+      "token_id_a": 410,
+      "token_id_b": 404,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20667269656e6473",
+      "new_token_id": 489,
+      "rank": 225,
+      "token_id_a": 416,
+      "token_id_b": 310,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "207475726e73",
+      "new_token_id": 490,
+      "rank": 226,
+      "token_id_a": 461,
+      "token_id_b": 115,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20736f6c7665",
+      "new_token_id": 491,
+      "rank": 227,
+      "token_id_a": 465,
+      "token_id_b": 413,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20626f6f6b6d61726b",
+      "new_token_id": 492,
+      "rank": 228,
+      "token_id_a": 466,
+      "token_id_b": 480,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "2070726f6772657373",
+      "new_token_id": 493,
+      "rank": 229,
+      "token_id_a": 467,
+      "token_id_b": 488,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "2070617469656e6365",
+      "new_token_id": 494,
+      "rank": 230,
+      "token_id_a": 468,
+      "token_id_b": 463,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "2070757a7a6c6573",
+      "new_token_id": 495,
+      "rank": 231,
+      "token_id_a": 471,
+      "token_id_b": 460,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "20666f7572",
+      "new_token_id": 496,
+      "rank": 232,
+      "token_id_a": 476,
+      "token_id_b": 114,
+      "training_frequency": 25
+    },
+    {
+      "merged_bytes_hex": "616c",
+      "new_token_id": 497,
+      "rank": 233,
+      "token_id_a": 97,
+      "token_id_b": 108,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "6566756c",
+      "new_token_id": 498,
+      "rank": 234,
+      "token_id_a": 101,
+      "token_id_b": 397,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "697374",
+      "new_token_id": 499,
+      "rank": 235,
+      "token_id_a": 105,
+      "token_id_b": 320,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "6c6174",
+      "new_token_id": 500,
+      "rank": 236,
+      "token_id_a": 108,
+      "token_id_b": 275,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "726576",
+      "new_token_id": 501,
+      "rank": 237,
+      "token_id_a": 114,
+      "token_id_b": 277,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "74696e67",
+      "new_token_id": 502,
+      "rank": 238,
+      "token_id_a": 116,
+      "token_id_b": 282,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "756d62",
+      "new_token_id": 503,
+      "rank": 239,
+      "token_id_a": 117,
+      "token_id_b": 312,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "696e616c",
+      "new_token_id": 504,
+      "rank": 240,
+      "token_id_a": 269,
+      "token_id_b": 497,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "20636f756e",
+      "new_token_id": 505,
+      "rank": 241,
+      "token_id_a": 270,
+      "token_id_b": 428,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "20736c6174",
+      "new_token_id": 506,
+      "rank": 242,
+      "token_id_a": 276,
+      "token_id_b": 500,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "2077726f",
+      "new_token_id": 507,
+      "rank": 243,
+      "token_id_a": 279,
+      "token_id_b": 403,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "206d697374",
+      "new_token_id": 508,
+      "rank": 244,
+      "token_id_a": 286,
+      "token_id_b": 499,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "2070726576",
+      "new_token_id": 509,
+      "rank": 245,
+      "token_id_a": 290,
+      "token_id_b": 501,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "2066696e616c",
+      "new_token_id": 510,
+      "rank": 246,
+      "token_id_a": 307,
+      "token_id_b": 504,
+      "training_frequency": 24
+    },
+    {
+      "merged_bytes_hex": "206361726566756c",
+      "new_token_id": 511,
+      "rank": 247,
+      "token_id_a": 313,
+      "token_id_b": 498,
+      "training_frequency": 24
+    }
+  ],
+  "num_merges": 248,
+  "schema_version": "1.0.0",
+  "special_tokens": {
+    "<|assistant|>": 261,
+    "<|bos|>": 258,
+    "<|context|>": 262,
+    "<|end_turn|>": 263,
+    "<|eos|>": 257,
+    "<|pad|>": 256,
+    "<|system|>": 259,
+    "<|user|>": 260
+  },
+  "tie_breaking_rule": "lexicographical_min_token_id_pair",
+  "tokenizer_type": "byte_level_bpe",
+  "training_dataset_id": "scratch-curated-tinystories-v1",
+  "training_split_sha256": "ba26d0a6bcd9fac379072de8dae125a11f080311cee8dc402aaeee08c764d831",
+  "vocab_size": 512
+}
