@@ -331,6 +331,9 @@ class BPETokenizer:
     def new_stream_decoder(self) -> BpeIncrementalUtf8StreamDecoder:
         return BpeIncrementalUtf8StreamDecoder(self._token_to_bytes, self.vocab_size)
 
+    def create_stream_decoder(self) -> BpeIncrementalUtf8StreamDecoder:
+        return self.new_stream_decoder()
+
     def to_dict(self) -> dict:
         return {
             "schema_version": "1.0.0",

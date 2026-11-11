@@ -1,0 +1,54 @@
+{
+  "baselines": {
+    "bigram_val": {
+      "bits_per_byte": 1.428,
+      "cross_entropy_loss": 3.0948,
+      "evaluated_utf8_bytes": 4396,
+      "evaluated_valid_tokens": 1406,
+      "model_label": "bigram-laplace-baseline",
+      "perplexity": 22.0818,
+      "split_name": "val"
+    },
+    "unigram_val": {
+      "bits_per_byte": 2.2603,
+      "cross_entropy_loss": 4.8986,
+      "evaluated_utf8_bytes": 4396,
+      "evaluated_valid_tokens": 1406,
+      "model_label": "unigram-laplace-baseline",
+      "perplexity": 134.0956,
+      "split_name": "val"
+    }
+  },
+  "mlflow_run_id": "95a149a60ec14ea8aef77e8357264ab0",
+  "profiles": {
+    "shallow-wide-bpe-512": {
+      "estimated_compute_seconds": 23.07,
+      "exact_parameters": 1012992,
+      "measured_steps": 5,
+      "measured_tokens_per_second": 4334.71,
+      "measured_validation_and_checkpoint_overhead_seconds": 3.46,
+      "planned_training_tokens": 100000,
+      "planned_wall_time_seconds": 26.53,
+      "processed_positions_per_update": 256,
+      "profile_name": "shallow-wide-bpe-512"
+    },
+    "tiny-bpe-512": {
+      "estimated_compute_seconds": 34.01,
+      "exact_parameters": 875264,
+      "measured_steps": 5,
+      "measured_tokens_per_second": 2940.25,
+      "measured_validation_and_checkpoint_overhead_seconds": 5.1,
+      "planned_training_tokens": 100000,
+      "planned_wall_time_seconds": 39.11,
+      "processed_positions_per_update": 256,
+      "profile_name": "tiny-bpe-512"
+    }
+  },
+  "schema_version": "1.0.0",
+  "stop_conditions": {
+    "max_grad_norm_threshold": 20.0,
+    "max_wall_clock_seconds": 600,
+    "non_finite_loss": "abort_immediately",
+    "oom_retry_policy": "no_infinite_retry_fallback_to_tiny_cpu"
+  }
+}
