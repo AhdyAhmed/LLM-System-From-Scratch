@@ -1,6 +1,6 @@
 {
   "probe_version": 1,
-  "recorded_at_utc": "2026-10-16T03:24:34.076641+00:00",
+  "recorded_at_utc": "2026-10-16T03:52:51.106928+00:00",
   "os": {
     "system": "Windows",
     "release": "11",
@@ -18,13 +18,13 @@
   "storage": {
     "C:": {
       "total_gib": 282.29,
-      "used_gib": 263.99,
-      "free_gib": 18.3
+      "used_gib": 263.29,
+      "free_gib": 19.0
     },
     "E:": {
       "total_gib": 193.73,
-      "used_gib": 177.09,
-      "free_gib": 16.65
+      "used_gib": 177.11,
+      "free_gib": 16.62
     }
   },
   "cpu_smoke": {
@@ -37,7 +37,7 @@
     ],
     "loss": -0.044618,
     "gradients_finite": true,
-    "elapsed_ms": 820.81
+    "elapsed_ms": 824.887
   },
   "gpu": {
     "cuda_available": true,
@@ -68,7 +68,7 @@
       ],
       "loss": 0.012774,
       "gradients_finite": true,
-      "elapsed_ms": 220.087
+      "elapsed_ms": 256.19
     }
   },
   "fallback_policy": "CPU tiny-model profile remains a first-class supported execution path whenever GPU VRAM is occupied or unavailable."
