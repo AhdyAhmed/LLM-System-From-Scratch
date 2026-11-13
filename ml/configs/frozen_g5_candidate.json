@@ -1,0 +1,26 @@
+{
+  "artifact_logical_uri": "mlflow-artifacts:/scratchlm-phase5-sft/0323942735134499b66f1ac177908bbe/artifacts/model_package",
+  "base_checkpoint_sha256": "6380ea7d6097d5ce6264afc6d220498de849981dd4f192cb811b8a9a6894e3d7",
+  "base_pretrain_run_id": "0a783f1243ed4cb7a5e3eb58cad2f79a",
+  "dataset_manifest_sha256": "1a311610946a0f596cb62c7131909662864f2f3ae3a41564736bcc6acf1f500b",
+  "gate": "G5",
+  "mlflow_candidate_alias": "candidate",
+  "mlflow_registered_version": "3",
+  "package_sha256": "ba30f95421b3016b5b08ddae2b63537b701c759c2cbcc42cc495b929ebc2b12b",
+  "schema_version": "1.0.0",
+  "selected_model_name": "scratchlm-tiny-bpe",
+  "serving_promotion_approved": false,
+  "sft_checkpoint_sha256": "846f90fad9f218941c0ff26b4f253a41f39ac5308204c9dd7403a647bd45e3b9",
+  "sft_dataset_manifest_sha256": "71c1e64092950da3b70306c0cac71e627dcbb0df8594ed00f5e51eb5d697dc06",
+  "sft_run_id": "0323942735134499b66f1ac177908bbe",
+  "tokenizer_sha256": "a38cb3a119b033b6b8d8680a11af31b3a09af4cbcc2cf759d0a99dcad07bdd4a",
+  "validation_metrics": {
+    "base_sft_format_compliance": 0.0,
+    "bigram_val_perplexity": 22.0818,
+    "pretrained_bits_per_byte": 2.2595,
+    "pretrained_val_perplexity": 133.8492,
+    "sft_format_compliance": 0.0,
+    "unigram_val_perplexity": 134.0956,
+    "untrained_val_perplexity": 532.3319
+  }
+}
