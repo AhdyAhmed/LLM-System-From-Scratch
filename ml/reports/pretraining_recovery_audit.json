@@ -1,0 +1,13 @@
+{
+  "best_checkpoint_bytes": 10596174,
+  "best_checkpoint_sha256": "6380ea7d6097d5ce6264afc6d220498de849981dd4f192cb811b8a9a6894e3d7",
+  "initial_val_loss": 6.256441235542297,
+  "interrupted_at_step": 12,
+  "part1_run_id": "5ff52fd253c44eb0baa6e00274200705",
+  "recovery_verified": true,
+  "resumed_run_id": "0a783f1243ed4cb7a5e3eb58cad2f79a",
+  "resumed_to_step": 24,
+  "schema_version": "1.0.0",
+  "step12_val_loss": 4.976903438568115,
+  "step24_val_loss": 4.850876092910767
+}
