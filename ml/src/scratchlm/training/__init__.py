@@ -1,4 +1,4 @@
-"""Training loop, AdamW setup, cosine scheduler, gradient clipping, atomic checkpointing, and MLflow tracking."""
+"""Training loop, AdamW setup, cosine scheduler, gradient clipping, atomic checkpointing, SFT, and MLflow tracking."""
 
 from scratchlm.training.checkpoints import (
     AtomicCheckpointManager,
@@ -20,6 +20,23 @@ from scratchlm.training.loop import (
     run_reproducible_training,
     seed_everything,
 )
+from scratchlm.training.sft import (
+    ChatTemplateSpec,
+    EncodedSftSample,
+    SftDatasetManifest,
+    SftExample,
+    SftRunResult,
+    SftSplitFileMeta,
+    build_and_freeze_sft_dataset,
+    compare_base_and_sft_models,
+    encode_sft_example_with_assistant_mask,
+    encode_sft_prompt_prefix,
+    evaluate_sft_loss,
+    generate_curated_sft_examples,
+    load_sft_split,
+    run_bounded_sft_from_base_checkpoint,
+    verify_sft_split_disjointness,
+)
 from scratchlm.training.tracker import (
     ExperimentTracker,
     InMemoryExperimentTracker,
@@ -31,12 +48,18 @@ from scratchlm.training.tracker import (
 
 __all__ = [
     "AtomicCheckpointManager",
+    "ChatTemplateSpec",
     "CheckpointIntegrityError",
     "CheckpointMetadata",
+    "EncodedSftSample",
     "ExperimentTracker",
     "InMemoryExperimentTracker",
     "LineageHashes",
     "NonFiniteLossError",
+    "SftDatasetManifest",
+    "SftExample",
+    "SftRunResult",
+    "SftSplitFileMeta",
     "SpooledTrackingEvent",
     "SpoolingMlflowRestTracker",
     "StepMetrics",
@@ -44,12 +67,21 @@ __all__ = [
     "TrainingConfig",
     "TrainingRunSummary",
     "build_adamw_optimizer",
+    "build_and_freeze_sft_dataset",
     "capture_rng_states",
+    "compare_base_and_sft_models",
     "compute_cosine_lr_with_warmup",
+    "encode_sft_example_with_assistant_mask",
+    "encode_sft_prompt_prefix",
+    "evaluate_sft_loss",
     "evaluate_validation_loss",
     "execute_accumulated_optimizer_step",
+    "generate_curated_sft_examples",
+    "load_sft_split",
     "restore_rng_states",
+    "run_bounded_sft_from_base_checkpoint",
     "run_reproducible_training",
     "seed_everything",
     "validate_logical_artifact_uri",
+    "verify_sft_split_disjointness",
 ]
