@@ -1,0 +1,161 @@
+{
+  "chat_template": {
+    "assistant_token_id": 261,
+    "end_turn_token_id": 263,
+    "eos_token_id": 257,
+    "max_byte_tokens": 128,
+    "pad_token_id": 256,
+    "system_token_id": 259,
+    "template_version": "scratch-chat-v1",
+    "user_token_id": 260
+  },
+  "dataset_id": "scratch-narrow-story-sft-v1",
+  "max_byte_token_budget": 128,
+  "max_observed_bpe_tokens": 82,
+  "max_observed_byte_tokens": 122,
+  "schema_version": "1.0.0",
+  "splits": {
+    "test": {
+      "answer_canonical_hashes": [
+        "cb1dab49f210b5f76d1c8744bb07665dfee850d50d7f59e69a85b89f9ec44a1c",
+        "52645d7578cfb22197e2e0af1e049f52adb430eea34b9455f668f266c6b71439",
+        "e93b15602f07a04f723dfbfe94f3573a7ae30fa174a72896f89823a442dfdfb3",
+        "ecf01d54e3bb58e2d14f9dc3f60ebd836d71493390ca71b6b0957910854f7a85",
+        "409e1c728a6dcb84b35470365dcbd14639d836ea97051023ca277b72df272bbf",
+        "bd0f439787515cba120326d6e11e5696b0241bb57e2b90853ee43f454fd6d375",
+        "2d3859037f92c0e14ba010e44789f13255766b61347ec0eb82bde9f4c5ad9b73",
+        "c912f2cf9806e2ea53818d034328b70641e7c5c6342912206e77ea0550d093cf"
+      ],
+      "example_count": 8,
+      "example_ids": [
+        "sft-0041",
+        "sft-0042",
+        "sft-0043",
+        "sft-0044",
+        "sft-0045",
+        "sft-0046",
+        "sft-0047",
+        "sft-0048"
+      ],
+      "file_sha256": "7103088a1f91feb2cfe2054f2d0b31934d3dfafd4925ab81846c81936a59afa9",
+      "split_name": "test",
+      "template_families": [
+        "family_test_item_12",
+        "family_test_moral_11"
+      ]
+    },
+    "train": {
+      "answer_canonical_hashes": [
+        "03ae45c4b04924dd6de0a77725cd0d87b601dd2b3fa24be5645f948500eab428",
+        "815809e234eeee4d9ebf566576f2e62dc6737e648a9d895da61fe21475e6e849",
+        "e96752fec78d824dd7e3eaa09faedc67aefd19f68eb894de7460c3f3104ec9c9",
+        "a6bbfaee71b5cf421e5bedcffc4ceaaa006e32ba875101525e6ab5a8db434c75",
+        "c2fc897544731f4c0449c9a39c299630fc4ad73b8e47984b9a33c928b1483ba0",
+        "f977bbbee99fa64d37551cc3446f244a02d32802b974b22c1f16ebd5665739af",
+        "c11721a039d433efd6f0a624b39bb46fa959ff8c66e5d8fc524dfdf7f6e3ded5",
+        "c90f7438677cf4772f36b088d9a9880d5759abd6ed05560866bf2381d59e86dd",
+        "8189f224169b1dce2ef220ada02ec13564f9ed94d9fcf15a152afde76414d9f6",
+        "0f21a0d1dba283ee35a7e9e83286325ff37f32053024dfa14f89bd51f2c6076c",
+        "278fe1e586a55da96b9358db7b7945ee0e9e8ec153865ce492b64abf785ccf5a",
+        "55943351c90163dbf88660a072e25661f1d2d231a4a8610aafc14cf37139afa2",
+        "1caf7e77b5ef25630390b0791b939a1293fdc84aef4f17b824ba1a04b40bd78d",
+        "4b1e9aebe462b6fcc9008ee36a9446f5e7b94cb7be4ae70077430a5be1785470",
+        "d24973e206d62b83ea6e5f53becea6bb43a21a0d5d20177d3e9e776f308abdec",
+        "a2885aff54d37ad62a798253a2f995118da86b8797eee15e9aaf882024cc24b6",
+        "b8f4806cc65c4ab9ae1534d55934861b2a33317c5ae25e06207ae911f32ff0b5",
+        "34c97f5f832decda2865e0349de03d9a3b28914eab7ee15eba99d99b89ab9773",
+        "408fa2372c4919962738f6aa06dac0a93b24ff0d237f9b219446c84f4c737596",
+        "a02e251866c4d44d5a61356ab33f960c5678a555333070a84b7dcb7cdb967581",
+        "7ba321f9207d97290bad8e19fd734217d7bb3b7bc928d7b5e25b949ec24b2760",
+        "d6b0ceef9397c04bbe856b056e521468377814a38eb6450f1297bad7f7df4b4b",
+        "f56c2a9a6cd57a6cc02c9fc0f0a467d64a31b70e28de34c75c5d43decdf4a30b",
+        "a0c33b6d4f00c89142ad4ccdf4d858e546d6c9c5514c26f1943ee2f8ac5076a8",
+        "8d60765eabaf2e1dd49a59835ddcc739321fe32fa3ad2ebd543faf5f735e6e26",
+        "8a6767810a2ce2cf20b8258e7057fca60a85348f2d858b9ebbba413c6f39b664",
+        "a4c6d54d2de301fd3aa07fc0d379238b10b8359707323765a15a3d105852a346",
+        "337c430834757997f9f38169352ea00a5a5fca03e7ca5e5743d1c6e657c456e1",
+        "8ac41f9187157b337f8f164550c8231f748673406d5db38d7b453a0c1bb23b46",
+        "34836a33efd624a0998f740833dc0de7c446de9e0bd9bb10fce5280d78d59d81",
+        "d59c4fb13be17e317da973e334f83561bec103f624888dc176ad6d2424e8b747",
+        "2f78b190ddf897c3c7e55b5a6f858cff89d54bacff6772f575c65a4238211996"
+      ],
+      "example_count": 32,
+      "example_ids": [
+        "sft-0001",
+        "sft-0002",
+        "sft-0003",
+        "sft-0004",
+        "sft-0005",
+        "sft-0006",
+        "sft-0007",
+        "sft-0008",
+        "sft-0009",
+        "sft-0010",
+        "sft-0011",
+        "sft-0012",
+        "sft-0013",
+        "sft-0014",
+        "sft-0015",
+        "sft-0016",
+        "sft-0017",
+        "sft-0018",
+        "sft-0019",
+        "sft-0020",
+        "sft-0021",
+        "sft-0022",
+        "sft-0023",
+        "sft-0024",
+        "sft-0025",
+        "sft-0026",
+        "sft-0027",
+        "sft-0028",
+        "sft-0029",
+        "sft-0030",
+        "sft-0031",
+        "sft-0032"
+      ],
+      "file_sha256": "2664aea67b340daf471dd0cba0e626ded152ab3531c40333c4b2db4e3d02c593",
+      "split_name": "train",
+      "template_families": [
+        "family_ending_05",
+        "family_ending_06",
+        "family_kv_item_07",
+        "family_kv_item_08",
+        "family_moral_tag_01",
+        "family_moral_tag_02",
+        "family_role_bullet_03",
+        "family_role_bullet_04"
+      ]
+    },
+    "val": {
+      "answer_canonical_hashes": [
+        "f7a7064a6a61881cb58ca2bb2f1d1ba9106456fd9f517dcb66a929ddb73074af",
+        "c802bef9394a8176287c19ffb6e3fd9d67ab7bfbd022d47311e37f85984aea26",
+        "504ccce53aa7f44f301ba08cc63d297a396959a9bc5a6c72d23e9f96bad6f641",
+        "25a99e11d416d161e45a10460806ac6bf53f8d4a74e6511bc7d999e437252126",
+        "2104c7604aaf491dacd86d0d45dc229fa1c88a782fdf37fec5a1bcdda1f611ba",
+        "75b0bbc40f447886358ec9f9a7ee4e356f1e0e6d9fdec4a088f3e9f6d26558f3",
+        "695b1874819a90bb4743a5add1bc61cce821d27ed5597bbc90d5cc3874eec8e8",
+        "973d011f775b53a39b8cdc34710051b9004d0613d0bbc88e464029c15812e92d"
+      ],
+      "example_count": 8,
+      "example_ids": [
+        "sft-0033",
+        "sft-0034",
+        "sft-0035",
+        "sft-0036",
+        "sft-0037",
+        "sft-0038",
+        "sft-0039",
+        "sft-0040"
+      ],
+      "file_sha256": "a3adb0989a730106264e18227a8338d1d367fd6d4759b5218d66b338b49074dd",
+      "split_name": "val",
+      "template_families": [
+        "family_val_item_10",
+        "family_val_moral_09"
+      ]
+    }
+  },
+  "test_split_sealed": true
+}
