@@ -2,50 +2,40 @@ package com.scratchllm.platform.modelcatalog;
 
 import java.util.List;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Exposes GET /api/v1/models returning immutable model catalog entries.
+ * Day055: Exposes GET /api/v1/models and GET /api/v1/models/{revisionTag} returning immutable
+ * model catalog entries backed by cache-aside Redis metadata (`model:rev:{revision}`) and PostgreSQL.
  */
 @RestController
 public class ModelCatalogController {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final ModelCatalogService modelCatalogService;
 
-    public ModelCatalogController(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public ModelCatalogController(ModelCatalogService modelCatalogService) {
+        this.modelCatalogService = modelCatalogService;
     }
 
     @GetMapping("/api/v1/models")
     public ResponseEntity<ModelCatalogResponse> listModels() {
-        List<ModelCatalogEntry> models = jdbcTemplate.query(
-            """
-            SELECT model_alias, revision_tag, mlflow_model_version, tokenizer_hash,
-                   context_limit, max_output_tokens, is_scratch_model, capability_note
-            FROM model_revisions
-            WHERE readiness_status = 'READY'
-            ORDER BY created_at ASC
-            """,
-            (rs, rowNum) -> new ModelCatalogEntry(
-                rs.getString("model_alias"),
-                rs.getString("revision_tag"),
-                rs.getString("mlflow_model_version"),
-                rs.getString("tokenizer_hash"),
-                rs.getInt("context_limit"),
-                rs.getInt("max_output_tokens"),
-                rs.getBoolean("is_scratch_model"),
-                rs.getString("capability_note")
-            )
-        );
-        return ResponseEntity.ok(new ModelCatalogResponse(models));
+        return ResponseEntity.ok(new ModelCatalogResponse(modelCatalogService.listReadyModels()));
+    }
+
+    @GetMapping("/api/v1/models/{revisionTag}")
+    public ResponseEntity<ModelCatalogEntry> getModelByRevision(@PathVariable String revisionTag) {
+        return modelCatalogService.getByRevisionTag(revisionTag)
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     public record ModelCatalogEntry(
         String alias,
         String model_revision,
         String registry_version,
+        String package_sha256,
         String tokenizer_hash,
         int context_limit,
         int max_output_tokens,
