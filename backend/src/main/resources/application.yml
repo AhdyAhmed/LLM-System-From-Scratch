@@ -66,6 +66,15 @@ scratchllm:
     daily-allowance-tokens: ${DAILY_ALLOWANCE_TOKENS:4096}
   execution:
     inline-fake-dispatch-enabled: ${INLINE_FAKE_DISPATCH_ENABLED:true}
+  modelcatalog:
+    cache-ttl-seconds: ${MODEL_CATALOG_CACHE_TTL_SECONDS:3600}
+  inference:
+    base-url: ${INFERENCE_BASE_URL:http://127.0.0.1:8001}
+    internal-token: ${INTERNAL_SERVICE_TOKEN:scratchllm-internal-dev-token-day051}
+    connect-timeout-ms: ${INFERENCE_CONNECT_TIMEOUT_MS:3000}
+    idle-read-timeout-ms: ${INFERENCE_IDLE_READ_TIMEOUT_MS:5000}
+    total-timeout-ms: ${INFERENCE_TOTAL_TIMEOUT_MS:30000}
+    max-line-bytes: ${INFERENCE_MAX_LINE_BYTES:65536}
 
 management:
   endpoints:
