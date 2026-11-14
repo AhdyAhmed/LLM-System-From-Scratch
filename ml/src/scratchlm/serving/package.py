@@ -177,6 +177,14 @@ class ScratchLmPyfuncAdapter:
         self.chat_template = chat_template
         self.manifest = manifest
 
+    @property
+    def model_config(self) -> ModelConfig:
+        return self.model.config
+
+    @classmethod
+    def load(cls, package_dir: Path, device: str = "cpu") -> ScratchLmPyfuncAdapter:
+        return cls.load_package(package_dir=package_dir, device=device)
+
     @classmethod
     def load_package(cls, package_dir: Path, device: str = "cpu") -> ScratchLmPyfuncAdapter:
         manifest_path = package_dir / "package_manifest.json"
