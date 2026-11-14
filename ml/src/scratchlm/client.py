@@ -158,6 +158,12 @@ class ScratchLlmClient:
         resp.raise_for_status()
         return dict(resp.json())
 
+    def list_models(self) -> dict[str, Any]:
+        resp = self._client.get("/api/v1/models")
+        resp.raise_for_status()
+        return dict(resp.json())
+
+
     def create_conversation(self, workspace_id: str, title: str) -> dict[str, Any]:
         resp = self._client.post(
             f"/api/v1/workspaces/{workspace_id}/conversations",
