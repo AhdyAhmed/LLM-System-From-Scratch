@@ -146,10 +146,14 @@ class CausalMultiHeadSelfAttention(nn.Module):
         self,
         x: torch.Tensor,
         *,
+        kv_cache: object | None = None,
+        layer_idx: int = 0,
         return_weights: bool = False,
     ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         """
         Forward pass for input x of shape [B, T, d_model].
+        When `kv_cache` is provided (`ScratchKVCache`), appends projected K and V tensors
+        for `layer_idx` and uses the prior `past_len` offset for causal masking.
         """
         if x.ndim != 3 or x.shape[-1] != self.d_model:
             raise ValueError(f"Expected 3D input [B, T, {self.d_model}], got {tuple(x.shape)}")
@@ -158,11 +162,19 @@ class CausalMultiHeadSelfAttention(nn.Module):
         k = self.split_heads(self.k_proj(x))
         v = self.split_heads(self.v_proj(x))
 
+        past_len = 0
+        if kv_cache is not None:
+            append_fn = getattr(kv_cache, "append", None)
+            if callable(append_fn):
+                k, v, past_len = append_fn(layer_idx, k, v)
+            else:
+                raise TypeError("kv_cache must provide an append(layer_idx, new_k, new_v) method")
+
         context_heads, attn_weights = causal_scaled_dot_product_attention(
             q,
             k,
             v,
-            past_len=0,
+            past_len=past_len,
             dropout_layer=self.attn_dropout,
         )
         merged = self.merge_heads(context_heads)
@@ -171,3 +183,4 @@ class CausalMultiHeadSelfAttention(nn.Module):
         if return_weights:
             return out, attn_weights
         return out
+

@@ -10,6 +10,7 @@ from typing import Iterator, Sequence
 
 import torch
 
+from scratchlm.inference.kv_cache import ScratchKVCache
 from scratchlm.model.attention import stable_softmax
 from scratchlm.model.gpt import ScratchGPT
 from scratchlm.tokenizer.byte_tokenizer import EOS_TOKEN_ID, ByteTokenizer
@@ -90,11 +91,14 @@ def generate_tokens(
     top_p: float | None = None,
     seed: int = 1337,
     eos_token_id: int = EOS_TOKEN_ID,
-    tokenizer: ByteTokenizer | None = None,
+    tokenizer: object | None = None,
+    use_kv_cache: bool = False,
 ) -> GenerationSampleResult:
     """
     Autoregressively generate tokens from ScratchGPT in evaluation mode.
     Explicitly rejects context overflow if len(prompt_ids) + max_new_tokens > model.config.max_seq_len.
+    Supports both the uncached reference path (`use_kv_cache=False`) and Day057 KV-cached incremental
+    decoding (`use_kv_cache=True`).
     """
     if not prompt_ids:
         raise ValueError("prompt_ids must not be empty")
@@ -120,10 +124,21 @@ def generate_tokens(
         output_ids: list[int] = []
         text_chunks: list[str] = []
         finish_reason = "length"
+        kv_cache = (
+            ScratchKVCache(n_layers=model.config.n_layers, max_seq_len=max_seq_len)
+            if use_kv_cache
+            else None
+        )
 
-        for _ in range(max_new_tokens):
-            inp = torch.tensor([seq], dtype=torch.long, device=device)
-            logits, _ = model(inp)
+        for step_idx in range(max_new_tokens):
+            if kv_cache is not None:
+                step_tokens = seq if step_idx == 0 else [seq[-1]]
+                inp = torch.tensor([step_tokens], dtype=torch.long, device=device)
+                logits, _ = model(inp, kv_cache=kv_cache)
+            else:
+                inp = torch.tensor([seq], dtype=torch.long, device=device)
+                logits, _ = model(inp)
+
             next_logits = logits[0, -1, :]
             next_id = sample_next_token(
                 next_logits,
@@ -168,7 +183,8 @@ def stream_generate_utf8(
     top_p: float | None = None,
     seed: int = 1337,
     eos_token_id: int = EOS_TOKEN_ID,
-    tokenizer: ByteTokenizer | None = None,
+    tokenizer: object | None = None,
+    use_kv_cache: bool = False,
 ) -> Iterator[str]:
     """
     Stream decoded UTF-8 string chunks during token-by-token generation using
@@ -191,11 +207,22 @@ def stream_generate_utf8(
         gen = torch.Generator(device=device).manual_seed(seed)
         tok = tokenizer or ByteTokenizer()
         stream_decoder = tok.create_stream_decoder()
+        kv_cache = (
+            ScratchKVCache(n_layers=model.config.n_layers, max_seq_len=model.config.max_seq_len)
+            if use_kv_cache
+            else None
+        )
 
         seq: list[int] = [int(t) for t in prompt_ids]
-        for _ in range(max_new_tokens):
-            inp = torch.tensor([seq], dtype=torch.long, device=device)
-            logits, _ = model(inp)
+        for step_idx in range(max_new_tokens):
+            if kv_cache is not None:
+                step_tokens = seq if step_idx == 0 else [seq[-1]]
+                inp = torch.tensor([step_tokens], dtype=torch.long, device=device)
+                logits, _ = model(inp, kv_cache=kv_cache)
+            else:
+                inp = torch.tensor([seq], dtype=torch.long, device=device)
+                logits, _ = model(inp)
+
             next_id = sample_next_token(
                 logits[0, -1, :],
                 temperature=temperature,
@@ -216,3 +243,4 @@ def stream_generate_utf8(
     finally:
         if was_training:
             model.train()
+

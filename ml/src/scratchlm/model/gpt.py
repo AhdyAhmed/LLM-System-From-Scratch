@@ -126,17 +126,20 @@ class ScratchGPT(nn.Module):
         targets: torch.Tensor | None = None,
         *,
         ignore_index: int = IGNORE_INDEX,
+        kv_cache: object | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor | None]:
         """
         Compute forward pass:
           input_ids: [B, T]
           targets: optional [B, T]
+          kv_cache: optional ScratchKVCache for Day057 incremental decoding
         Returns:
           (logits: [B, T, V], loss: scalar Tensor or None)
         """
-        x = self.embeddings(input_ids, past_len=0)
-        for block in self.blocks:
-            x = block(x)
+        past_len = int(getattr(kv_cache, "past_len", 0)) if kv_cache is not None else 0
+        x = self.embeddings(input_ids, past_len=past_len)
+        for layer_idx, block in enumerate(self.blocks):
+            x = block(x, kv_cache=kv_cache, layer_idx=layer_idx)
         x = self.ln_f(x)
         logits = self.lm_head(x)
 
@@ -144,3 +147,4 @@ class ScratchGPT(nn.Module):
         if targets is not None:
             loss = masked_next_token_cross_entropy(logits, targets, ignore_index=ignore_index)
         return logits, loss
+

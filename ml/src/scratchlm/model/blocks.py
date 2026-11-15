@@ -73,10 +73,17 @@ class PreNormTransformerBlock(nn.Module):
             use_bias=use_bias,
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = x + self.attn(self.ln1(x))
+    def forward(
+        self,
+        x: torch.Tensor,
+        *,
+        kv_cache: object | None = None,
+        layer_idx: int = 0,
+    ) -> torch.Tensor:
+        x = x + self.attn(self.ln1(x), kv_cache=kv_cache, layer_idx=layer_idx)
         x = x + self.mlp(self.ln2(x))
         return x
+
 
 
 class TokenAndPositionEmbedding(nn.Module):
