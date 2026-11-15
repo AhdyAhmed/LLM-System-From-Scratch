@@ -14,6 +14,8 @@ import com.scratchllm.platform.generation.RunDtos.RunStatusResponse;
 import com.scratchllm.platform.generation.RunDtos.SamplingOptionsDto;
 import com.scratchllm.platform.generation.RunDtos.SubmitRunRequest;
 import com.scratchllm.platform.infrastructure.RedisRateLimiterService;
+import com.scratchllm.platform.modelcatalog.ModelCatalogController.ModelCatalogEntry;
+import com.scratchllm.platform.modelcatalog.ModelCatalogService;
 import com.scratchllm.platform.platform.ApiException;
 import jakarta.annotation.PreDestroy;
 import java.nio.charset.StandardCharsets;
@@ -33,6 +35,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -46,12 +50,13 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Day016 & Day018:
+ * Day016, Day018, Day054, Day055, Day056 & Day058:
  * - Idempotent run creation in PostgreSQL with canonical client request hashing (independent of model alias resolution)
  * - Replay verification BEFORE rate-limit or capacity/quota admission
+ * - Cache-aside Redis model metadata resolution via ModelCatalogService (`model:rev:{revision}`) with PostgreSQL fallback
+ * - Explicit Day058 context-budget enforcement (`estimatedPromptTokens + max_new_tokens <= context_limit`)
  * - Canonical deadlock-free lock hierarchy (system_capacity -> usage_buckets -> conversations)
- * - Transactional outbox event creation (generation.requested.v1)
- * - Bounded Phase 2 fake-provider execution, SSE event persistence, and idempotent cancellation
+ * - Single-GPU active generation slot (`Semaphore(1, true)`) with queued-run cap 8 and immediate slot release on cancel
  */
 @Service
 public class RunService {
@@ -59,16 +64,19 @@ public class RunService {
     private final JdbcTemplate jdbcTemplate;
     private final TransactionTemplate transactionTemplate;
     private final RedisRateLimiterService rateLimiterService;
+    private final ModelCatalogService modelCatalogService;
     private final GenerationProvider generationProvider;
     private final ObjectMapper objectMapper;
     private final int defaultDailyAllowance;
     private final boolean inlineFakeDispatchEnabled;
-    private final ExecutorService fakeExecutor = Executors.newFixedThreadPool(2);
+    private final ExecutorService fakeExecutor = Executors.newFixedThreadPool(4);
+    private final Semaphore singleGpuGenerationSlot = new Semaphore(1, true);
 
     public RunService(
         JdbcTemplate jdbcTemplate,
         PlatformTransactionManager transactionManager,
         RedisRateLimiterService rateLimiterService,
+        ModelCatalogService modelCatalogService,
         GenerationProvider generationProvider,
         ObjectMapper objectMapper,
         @Value("${scratchllm.quota.daily-allowance-tokens:4096}") int defaultDailyAllowance,
@@ -77,6 +85,7 @@ public class RunService {
         this.jdbcTemplate = jdbcTemplate;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.rateLimiterService = rateLimiterService;
+        this.modelCatalogService = modelCatalogService;
         this.generationProvider = generationProvider;
         this.objectMapper = objectMapper;
         this.defaultDailyAllowance = defaultDailyAllowance;
@@ -140,30 +149,37 @@ public class RunService {
         // 4. Enforce Redis atomic Lua rate limit for new logical run submissions
         rateLimiterService.enforceRunSubmissionLimit(userId.toString());
 
-        // 5. Resolve model_alias to READY revision_tag
-        List<ModelRevisionMeta> modelRows = jdbcTemplate.query(
-            """
-            SELECT revision_tag, context_limit, max_output_tokens
-            FROM model_revisions
-            WHERE model_alias = ? AND readiness_status = 'READY'
-            ORDER BY created_at DESC
-            LIMIT 1
-            """,
-            (rs, rowNum) -> new ModelRevisionMeta(
-                rs.getString("revision_tag"),
-                rs.getInt("context_limit"),
-                rs.getInt("max_output_tokens")
-            ),
-            request.model_alias()
-        );
-        if (modelRows.isEmpty()) {
-            throw new ApiException(
+        // 5. Resolve model_alias to READY revision_tag via cache-aside Redis + PostgreSQL fallback (Day055)
+        ModelCatalogEntry catalogEntry = modelCatalogService.resolveReadyAlias(request.model_alias())
+            .orElseThrow(() -> new ApiException(
                 HttpStatus.BAD_REQUEST,
                 "MODEL_NOT_AVAILABLE",
                 "Requested model_alias is unknown or not READY: " + request.model_alias()
+            ));
+        ModelRevisionMeta modelMeta = new ModelRevisionMeta(
+            catalogEntry.model_revision(),
+            catalogEntry.context_limit(),
+            catalogEntry.max_output_tokens()
+        );
+
+        // Day058: Validate conservative prompt + reserved output token budget against model context_limit (128)
+        int estimatedPromptTokens = Math.max(1, (request.prompt().length() + 3) / 4);
+        int requestedOutputTokens = request.sampling().max_new_tokens();
+        int totalReservedTokens = estimatedPromptTokens + requestedOutputTokens;
+        if (totalReservedTokens > modelMeta.contextLimit()) {
+            throw new ApiException(
+                HttpStatus.BAD_REQUEST,
+                "CONTEXT_LIMIT_EXCEEDED",
+                String.format(
+                    Locale.ROOT,
+                    "Prompt tokens (%d) + reserved max_new_tokens (%d) = %d exceeds model context_limit (%d).",
+                    estimatedPromptTokens,
+                    requestedOutputTokens,
+                    totalReservedTokens,
+                    modelMeta.contextLimit()
+                )
             );
         }
-        ModelRevisionMeta modelMeta = modelRows.getFirst();
 
         // 6. Acquire PostgreSQL locks in strict canonical order:
         //    (a) system_capacity -> (b) usage_buckets -> (c) conversations
@@ -232,7 +248,7 @@ public class RunService {
             );
         }
 
-        // Check system capacity
+        // Check system capacity (Day056 queued-run cap = 8)
         if (capacity.activeOrWaitingRuns() >= capacity.maxWaitingRuns()) {
             throw new ApiException(
                 HttpStatus.SERVICE_UNAVAILABLE,
@@ -240,11 +256,6 @@ public class RunService {
                 "System queue capacity is full; retry later."
             );
         }
-
-        // Compute conservative token reservation
-        int estimatedPromptTokens = Math.max(1, (request.prompt().length() + 3) / 4);
-        int requestedOutputTokens = request.sampling().max_new_tokens();
-        int totalReservedTokens = estimatedPromptTokens + requestedOutputTokens;
 
         if (bucket.reservedTokens() + bucket.settledTokens() + totalReservedTokens > bucket.dailyAllowanceTokens()) {
             throw new ApiException(
@@ -474,197 +485,234 @@ public class RunService {
     }
 
     /**
-     * Executes the deterministic fake provider for a QUEUED run and persists incremental SSE events
-     * and terminal state transitions.
+     * Executes the generation provider (deterministic fake or Python HTTP scratch provider) for a QUEUED run,
+     * enforcing the Day056 single active generation slot (`Semaphore(1, true)`) and persisting incremental
+     * SSE events and terminal state transitions.
      */
     public void executeFakeRun(UUID runId) {
-        RunExecutionContext ctx = transactionTemplate.execute(status -> {
-            List<RunExecutionContext> rows = jdbcTemplate.query(
-                """
-                SELECT id, conversation_id, status, model_revision, prompt_snapshot, sampling_json::text AS sampling_json, cancel_requested
-                FROM generation_runs
-                WHERE id = ?
-                FOR UPDATE
-                """,
-                (rs, rowNum) -> new RunExecutionContext(
-                    UUID.fromString(rs.getString("id")),
-                    UUID.fromString(rs.getString("conversation_id")),
-                    rs.getString("status"),
-                    rs.getString("model_revision"),
-                    rs.getString("prompt_snapshot"),
-                    rs.getString("sampling_json"),
-                    rs.getBoolean("cancel_requested")
-                ),
-                runId
-            );
-            if (rows.isEmpty()) {
-                return null;
-            }
-            RunExecutionContext r = rows.getFirst();
-            if (!"QUEUED".equals(r.status()) || r.cancelRequested()) {
-                return null;
-            }
-
-            jdbcTemplate.update(
-                """
-                UPDATE generation_runs
-                SET status = 'RUNNING', attempt_token = attempt_token + 1, started_at = clock_timestamp(), updated_at = clock_timestamp()
-                WHERE id = ?
-                """,
-                runId
-            );
-            appendRunEvent(runId, "run.started", Map.of(
-                "run_id", runId.toString(),
-                "schema_version", 1,
-                "model_revision", r.modelRevision()
-            ));
-            return r;
-        });
-
-        if (ctx == null) {
-            return;
-        }
-
-        SamplingOptionsDto sampling = parseSampling(ctx.samplingJson());
-        long delayMs = ctx.promptSnapshot().contains("[SLOW_FAKE]") ? 80L : 5L;
-        FaultInjectionSpec faultSpec = resolveFaultSpec(ctx.promptSnapshot(), delayMs);
-
-        AtomicBoolean cancelled = new AtomicBoolean(false);
-        StringBuilder fullOutput = new StringBuilder();
-
-        GenerationCommand command = new GenerationCommand(
-            runId,
-            1L,
-            ctx.modelRevision(),
-            ctx.promptSnapshot(),
-            128,
-            new SamplingConfig(
-                sampling.max_new_tokens(),
-                sampling.temperature(),
-                sampling.top_k(),
-                sampling.top_p(),
-                sampling.seed() != null ? sampling.seed() : 42L
-            ),
-            Instant.now().plusSeconds(60),
-            faultSpec
-        );
-
-        GenerationOutcome outcome = generationProvider.generateStream(
-            command,
-            (GenerationDeltaChunk chunk) -> {
-                Boolean isCancelReq = jdbcTemplate.queryForObject(
-                    "SELECT cancel_requested OR status = 'CANCELLED' FROM generation_runs WHERE id = ?",
+        boolean slotAcquired = false;
+        try {
+            long waitDeadlineMs = System.currentTimeMillis() + 30_000L;
+            while (!slotAcquired) {
+                Boolean isDeadOrCancelled = jdbcTemplate.queryForObject(
+                    "SELECT cancel_requested OR status <> 'QUEUED' FROM generation_runs WHERE id = ?",
                     Boolean.class,
                     runId
                 );
-                if (Boolean.TRUE.equals(isCancelReq)) {
-                    cancelled.set(true);
+                if (Boolean.TRUE.equals(isDeadOrCancelled)) {
                     return;
                 }
-                fullOutput.append(chunk.textDelta());
-                transactionTemplate.executeWithoutResult(status ->
-                    appendRunEvent(runId, "text.delta", Map.of(
-                        "run_id", runId.toString(),
-                        "schema_version", 1,
-                        "text", chunk.textDelta()
-                    ))
-                );
-            },
-            () -> {
-                Boolean isCancelReq = jdbcTemplate.queryForObject(
-                    "SELECT cancel_requested OR status = 'CANCELLED' FROM generation_runs WHERE id = ?",
-                    Boolean.class,
+                if (System.currentTimeMillis() > waitDeadlineMs) {
+                    return;
+                }
+                slotAcquired = singleGpuGenerationSlot.tryAcquire(25L, TimeUnit.MILLISECONDS);
+            }
+
+            RunExecutionContext ctx = transactionTemplate.execute(status -> {
+                List<RunExecutionContext> rows = jdbcTemplate.query(
+                    """
+                    SELECT id, conversation_id, status, model_revision, prompt_snapshot, sampling_json::text AS sampling_json, cancel_requested
+                    FROM generation_runs
+                    WHERE id = ?
+                    FOR UPDATE
+                    """,
+                    (rs, rowNum) -> new RunExecutionContext(
+                        UUID.fromString(rs.getString("id")),
+                        UUID.fromString(rs.getString("conversation_id")),
+                        rs.getString("status"),
+                        rs.getString("model_revision"),
+                        rs.getString("prompt_snapshot"),
+                        rs.getString("sampling_json"),
+                        rs.getBoolean("cancel_requested")
+                    ),
                     runId
                 );
-                return Boolean.TRUE.equals(isCancelReq) || cancelled.get();
-            }
-        );
+                if (rows.isEmpty()) {
+                    return null;
+                }
+                RunExecutionContext r = rows.getFirst();
+                if (!"QUEUED".equals(r.status()) || r.cancelRequested()) {
+                    return null;
+                }
 
-        transactionTemplate.executeWithoutResult(status -> {
-            String currentStatus = jdbcTemplate.queryForObject(
-                "SELECT status FROM generation_runs WHERE id = ? FOR UPDATE",
-                String.class,
-                runId
-            );
-            if (!"RUNNING".equals(currentStatus)) {
-                return;
-            }
-            if (outcome.finishReason() == FinishReason.CANCELLED || cancelled.get()) {
-                transitionToCancelled(runId);
-                return;
-            }
-            if (!outcome.isSuccess()) {
-                String errorCode = outcome.errorCode() != null ? outcome.errorCode() : "PROVIDER_EXECUTION_ERROR";
                 jdbcTemplate.update(
                     """
                     UPDATE generation_runs
-                    SET status = 'FAILED',
-                        finish_reason = 'error',
-                        error_code = ?,
+                    SET status = 'RUNNING', attempt_token = attempt_token + 1, started_at = clock_timestamp(), updated_at = clock_timestamp()
+                    WHERE id = ?
+                    """,
+                    runId
+                );
+                jdbcTemplate.update(
+                    "UPDATE gpu_leases SET active_generation_slots = 1, updated_at = clock_timestamp() WHERE id = 1"
+                );
+                appendRunEvent(runId, "run.started", Map.of(
+                    "run_id", runId.toString(),
+                    "schema_version", 1,
+                    "model_revision", r.modelRevision()
+                ));
+                return r;
+            });
+
+            if (ctx == null) {
+                return;
+            }
+
+            SamplingOptionsDto sampling = parseSampling(ctx.samplingJson());
+            long delayMs = (ctx.promptSnapshot().contains("[SLOW_FAKE]") || ctx.promptSnapshot().contains("[SLOW_REAL]"))
+                ? 80L
+                : 5L;
+            FaultInjectionSpec faultSpec = resolveFaultSpec(ctx.promptSnapshot(), delayMs);
+
+            AtomicBoolean cancelled = new AtomicBoolean(false);
+            StringBuilder fullOutput = new StringBuilder();
+
+            GenerationCommand command = new GenerationCommand(
+                runId,
+                1L,
+                ctx.modelRevision(),
+                ctx.promptSnapshot(),
+                128,
+                new SamplingConfig(
+                    sampling.max_new_tokens(),
+                    sampling.temperature(),
+                    sampling.top_k(),
+                    sampling.top_p(),
+                    sampling.seed() != null ? sampling.seed() : 42L
+                ),
+                Instant.now().plusSeconds(60),
+                faultSpec
+            );
+
+            GenerationOutcome outcome = generationProvider.generateStream(
+                command,
+                (GenerationDeltaChunk chunk) -> {
+                    Boolean isCancelReq = jdbcTemplate.queryForObject(
+                        "SELECT cancel_requested OR status = 'CANCELLED' FROM generation_runs WHERE id = ?",
+                        Boolean.class,
+                        runId
+                    );
+                    if (Boolean.TRUE.equals(isCancelReq)) {
+                        cancelled.set(true);
+                        return;
+                    }
+                    fullOutput.append(chunk.textDelta());
+                    transactionTemplate.executeWithoutResult(status ->
+                        appendRunEvent(runId, "text.delta", Map.of(
+                            "run_id", runId.toString(),
+                            "schema_version", 1,
+                            "text", chunk.textDelta()
+                        ))
+                    );
+                },
+                () -> {
+                    Boolean isCancelReq = jdbcTemplate.queryForObject(
+                        "SELECT cancel_requested OR status = 'CANCELLED' FROM generation_runs WHERE id = ?",
+                        Boolean.class,
+                        runId
+                    );
+                    return Boolean.TRUE.equals(isCancelReq) || cancelled.get();
+                }
+            );
+
+            transactionTemplate.executeWithoutResult(status -> {
+                String currentStatus = jdbcTemplate.queryForObject(
+                    "SELECT status FROM generation_runs WHERE id = ? FOR UPDATE",
+                    String.class,
+                    runId
+                );
+                if (!"RUNNING".equals(currentStatus)) {
+                    return;
+                }
+                if (outcome.finishReason() == FinishReason.CANCELLED || cancelled.get()) {
+                    transitionToCancelled(runId);
+                    return;
+                }
+                if (!outcome.isSuccess()) {
+                    String errorCode = outcome.errorCode() != null ? outcome.errorCode() : "PROVIDER_EXECUTION_ERROR";
+                    jdbcTemplate.update(
+                        """
+                        UPDATE generation_runs
+                        SET status = 'FAILED',
+                            finish_reason = 'error',
+                            error_code = ?,
+                            completed_at = clock_timestamp(),
+                            updated_at = clock_timestamp()
+                        WHERE id = ?
+                        """,
+                        errorCode, runId
+                    );
+                    refundReservation(runId);
+                    jdbcTemplate.update(
+                        "UPDATE system_capacity SET active_or_waiting_runs = GREATEST(0, active_or_waiting_runs - 1), updated_at = clock_timestamp() WHERE id = 1"
+                    );
+                    appendRunEvent(runId, "run.failed", Map.of(
+                        "run_id", runId.toString(),
+                        "schema_version", 1,
+                        "error_code", errorCode,
+                        "message", outcome.errorMessage() != null ? outcome.errorMessage() : "Generation failed inside provider."
+                    ));
+                    return;
+                }
+
+                Long maxOrder = jdbcTemplate.queryForObject(
+                    "SELECT COALESCE(MAX(message_order), 0) FROM messages WHERE conversation_id = ?",
+                    Long.class,
+                    ctx.conversationId()
+                );
+                long assistantOrder = (maxOrder != null ? maxOrder : 0L) + 1L;
+
+                jdbcTemplate.update(
+                    """
+                    INSERT INTO messages (id, conversation_id, run_id, role, content, status, message_order)
+                    VALUES (?, ?, ?, 'ASSISTANT', ?, 'COMMITTED', ?)
+                    """,
+                    UUID.randomUUID(), ctx.conversationId(), runId, fullOutput.toString(), assistantOrder
+                );
+
+                jdbcTemplate.update(
+                    """
+                    UPDATE generation_runs
+                    SET status = 'COMPLETED',
+                        finish_reason = ?,
+                        input_tokens = ?,
+                        output_tokens = ?,
                         completed_at = clock_timestamp(),
                         updated_at = clock_timestamp()
                     WHERE id = ?
                     """,
-                    errorCode, runId
+                    outcome.finishReason().wireValue(),
+                    outcome.inputTokens(),
+                    outcome.outputTokens(),
+                    runId
                 );
-                refundReservation(runId);
+
+                settleReservation(runId, outcome.inputTokens() + outcome.outputTokens());
                 jdbcTemplate.update(
                     "UPDATE system_capacity SET active_or_waiting_runs = GREATEST(0, active_or_waiting_runs - 1), updated_at = clock_timestamp() WHERE id = 1"
                 );
-                appendRunEvent(runId, "run.failed", Map.of(
+
+                appendRunEvent(runId, "run.completed", Map.of(
                     "run_id", runId.toString(),
                     "schema_version", 1,
-                    "error_code", errorCode,
-                    "message", outcome.errorMessage() != null ? outcome.errorMessage() : "Generation failed inside provider."
+                    "finish_reason", outcome.finishReason().wireValue(),
+                    "input_tokens", outcome.inputTokens(),
+                    "output_tokens", outcome.outputTokens()
                 ));
-                return;
+            });
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        } finally {
+            if (slotAcquired) {
+                try {
+                    jdbcTemplate.update(
+                        "UPDATE gpu_leases SET active_generation_slots = 0, updated_at = clock_timestamp() WHERE id = 1"
+                    );
+                } catch (Exception ignored) {
+                }
+                singleGpuGenerationSlot.release();
             }
-
-            Long maxOrder = jdbcTemplate.queryForObject(
-                "SELECT COALESCE(MAX(message_order), 0) FROM messages WHERE conversation_id = ?",
-                Long.class,
-                ctx.conversationId()
-            );
-            long assistantOrder = (maxOrder != null ? maxOrder : 0L) + 1L;
-
-            jdbcTemplate.update(
-                """
-                INSERT INTO messages (id, conversation_id, run_id, role, content, status, message_order)
-                VALUES (?, ?, ?, 'ASSISTANT', ?, 'COMMITTED', ?)
-                """,
-                UUID.randomUUID(), ctx.conversationId(), runId, fullOutput.toString(), assistantOrder
-            );
-
-            jdbcTemplate.update(
-                """
-                UPDATE generation_runs
-                SET status = 'COMPLETED',
-                    finish_reason = ?,
-                    input_tokens = ?,
-                    output_tokens = ?,
-                    completed_at = clock_timestamp(),
-                    updated_at = clock_timestamp()
-                WHERE id = ?
-                """,
-                outcome.finishReason().wireValue(),
-                outcome.inputTokens(),
-                outcome.outputTokens(),
-                runId
-            );
-
-            settleReservation(runId, outcome.inputTokens() + outcome.outputTokens());
-            jdbcTemplate.update(
-                "UPDATE system_capacity SET active_or_waiting_runs = GREATEST(0, active_or_waiting_runs - 1), updated_at = clock_timestamp() WHERE id = 1"
-            );
-
-            appendRunEvent(runId, "run.completed", Map.of(
-                "run_id", runId.toString(),
-                "schema_version", 1,
-                "finish_reason", outcome.finishReason().wireValue(),
-                "input_tokens", outcome.inputTokens(),
-                "output_tokens", outcome.outputTokens()
-            ));
-        });
+        }
     }
 
     private void transitionToCancelled(UUID runId) {
