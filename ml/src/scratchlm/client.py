@@ -293,10 +293,20 @@ class ScratchLlmClient:
                         collected.append(ev)
                         if ev.event == "text.delta" and on_delta is not None:
                             on_delta(str(ev.data.get("text", "")))
+                        if ev.event == "resync.required":
+                            snapshot_url = str(ev.data.get("snapshot_url") or f"/api/v1/runs/{run_id}")
+                            snap_resp = self._client.get(snapshot_url)
+                            snap_resp.raise_for_status()
+                            snapshot_body = dict(snap_resp.json())
+                            ev.data["snapshot"] = snapshot_body
+                            return collected
                         if ev.event in TERMINAL_SSE_EVENTS:
                             return collected
                 # Stream ended cleanly
-                if collected and collected[-1].event in TERMINAL_SSE_EVENTS:
+                if collected and (
+                    collected[-1].event in TERMINAL_SSE_EVENTS
+                    or collected[-1].event == "resync.required"
+                ):
                     return collected
                 attempts += 1
             except httpx.TransportError:
@@ -305,3 +315,80 @@ class ScratchLlmClient:
                     raise
 
         return collected
+
+    def stream_run_with_resync_fallback(
+        self,
+        run_id: str,
+        last_event_id: int | None = None,
+        max_reconnects: int = 2,
+    ) -> dict[str, Any]:
+        """
+        Day066: Streams SSE events for `run_id`. If the server emits `resync.required`
+        (because `last_event_id` expired past the 24h retention window or due to slow-reader
+        buffer overflow), closes the SSE stream and returns the authoritative durable run
+        status snapshot from `GET /api/v1/runs/{run_id}`.
+        """
+        events = self.stream_run_events(
+            run_id=run_id,
+            last_event_id=last_event_id,
+            max_reconnects=max_reconnects,
+        )
+        if events and events[-1].event == "resync.required":
+            snapshot = events[-1].data.get("snapshot")
+            if isinstance(snapshot, dict):
+                return {
+                    "resynced": True,
+                    "reason": str(events[-1].data.get("reason", "CURSOR_EXPIRED")),
+                    "snapshot": snapshot,
+                    "events": events,
+                }
+            return {
+                "resynced": True,
+                "reason": str(events[-1].data.get("reason", "CURSOR_EXPIRED")),
+                "snapshot": self.get_run_status(run_id),
+                "events": events,
+            }
+        return {
+            "resynced": False,
+            "reason": None,
+            "snapshot": self.get_run_status(run_id),
+            "events": events,
+        }
+
+    def promote_model(
+        self,
+        model_alias: str,
+        target_revision_tag: str,
+        release_generation: int | None = None,
+        expected_artifact_checksum: str | None = None,
+        approved_by: str = "operator-cli",
+    ) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "model_alias": model_alias,
+            "target_revision_tag": target_revision_tag,
+            "approved_by": approved_by,
+        }
+        if release_generation is not None:
+            payload["release_generation"] = release_generation
+        if expected_artifact_checksum is not None:
+            payload["expected_artifact_checksum"] = expected_artifact_checksum
+        resp = self._client.post(
+            "/api/v1/models/promotions",
+            headers=self._csrf_headers(),
+            json=payload,
+        )
+        resp.raise_for_status()
+        return dict(resp.json())
+
+    def list_dlq_events(self) -> dict[str, Any]:
+        resp = self._client.get("/api/v1/admin/dlq")
+        resp.raise_for_status()
+        return dict(resp.json())
+
+    def replay_dlq_event(self, event_id: str) -> dict[str, Any]:
+        resp = self._client.post(
+            f"/api/v1/admin/dlq/{event_id}/replay",
+            headers=self._csrf_headers(),
+        )
+        resp.raise_for_status()
+        return dict(resp.json())

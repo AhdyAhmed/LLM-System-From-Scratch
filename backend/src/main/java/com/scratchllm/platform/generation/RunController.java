@@ -1,18 +1,15 @@
 package com.scratchllm.platform.generation;
 
+import com.scratchllm.platform.generation.OutboxRelayAndInboxService.DlqEventRow;
+import com.scratchllm.platform.generation.OutboxRelayAndInboxService.DlqReplayResult;
 import com.scratchllm.platform.generation.RunDtos.RunAcceptedResponse;
-import com.scratchllm.platform.generation.RunDtos.RunEventRow;
 import com.scratchllm.platform.generation.RunDtos.RunStatusResponse;
 import com.scratchllm.platform.generation.RunDtos.SubmitRunRequest;
 import com.scratchllm.platform.identity.AuthenticatedPrincipal;
-import jakarta.annotation.PreDestroy;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,31 +24,29 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
- * Day016 & Day018 REST and SSE endpoints for generation runs:
+ * Day016, Day018, Day066 & Day067 REST and SSE endpoints for generation runs and DLQ operations:
  * - POST /api/v1/conversations/{conversationId}/runs
  * - GET /api/v1/runs/{runId}
- * - GET /api/v1/runs/{runId}/events
+ * - GET /api/v1/runs/{runId}/events (multiplexed via SharedSseEventMultiplexer)
  * - POST /api/v1/runs/{runId}/cancel
+ * - GET /api/v1/admin/dlq
+ * - POST /api/v1/admin/dlq/{eventId}/replay
  */
 @RestController
 public class RunController {
 
-    private static final Set<String> TERMINAL_EVENTS = Set.of(
-        "run.completed",
-        "run.cancelled",
-        "run.failed"
-    );
-
     private final RunService runService;
-    private final ExecutorService sseExecutor = Executors.newCachedThreadPool();
+    private final SharedSseEventMultiplexer sharedSseEventMultiplexer;
+    private final OutboxRelayAndInboxService outboxRelayAndInboxService;
 
-    public RunController(RunService runService) {
+    public RunController(
+        RunService runService,
+        SharedSseEventMultiplexer sharedSseEventMultiplexer,
+        OutboxRelayAndInboxService outboxRelayAndInboxService
+    ) {
         this.runService = runService;
-    }
-
-    @PreDestroy
-    public void shutdown() {
-        sseExecutor.shutdownNow();
+        this.sharedSseEventMultiplexer = sharedSseEventMultiplexer;
+        this.outboxRelayAndInboxService = outboxRelayAndInboxService;
     }
 
     @PostMapping("/api/v1/conversations/{conversationId}/runs")
@@ -91,7 +86,9 @@ public class RunController {
         @AuthenticationPrincipal AuthenticatedPrincipal principal,
         @PathVariable UUID runId,
         @RequestHeader(name = "Last-Event-ID", required = false) Long lastEventId,
-        @RequestParam(name = "after", required = false) Long afterCursor
+        @RequestParam(name = "after", required = false) Long afterCursor,
+        @RequestParam(name = "max_queue_capacity", required = false) Integer maxQueueCapacity,
+        @RequestParam(name = "simulated_write_delay_ms", required = false) Long simulatedWriteDelayMs
     ) {
         long initialCursor = 0L;
         if (lastEventId != null && lastEventId >= 0) {
@@ -100,52 +97,26 @@ public class RunController {
             initialCursor = afterCursor;
         }
 
-        // Verify ownership synchronously before returning SseEmitter so 404 is returned immediately if unauthorized
-        List<RunEventRow> initialBatch = runService.listRunEventsAfter(principal.userId(), runId, initialCursor);
+        if (maxQueueCapacity != null || simulatedWriteDelayMs != null) {
+            return sharedSseEventMultiplexer.subscribeWithCustomCapacity(
+                principal.userId(),
+                runId,
+                initialCursor,
+                maxQueueCapacity != null ? maxQueueCapacity : sharedSseEventMultiplexer.getDefaultSubscriberQueueCapacity(),
+                simulatedWriteDelayMs != null ? simulatedWriteDelayMs : 0L
+            );
+        }
 
-        SseEmitter emitter = new SseEmitter(30_000L);
-        final long startSeq = initialCursor;
-
-        sseExecutor.submit(() -> {
-            long cursor = startSeq;
-            try {
-                for (RunEventRow ev : initialBatch) {
-                    sendSseEvent(emitter, ev);
-                    cursor = ev.sequence();
-                    if (TERMINAL_EVENTS.contains(ev.eventType())) {
-                        emitter.complete();
-                        return;
-                    }
-                }
-
-                long deadlineMillis = System.currentTimeMillis() + 15_000L;
-                while (System.currentTimeMillis() < deadlineMillis) {
-                    List<RunEventRow> nextEvents = runService.listRunEventsAfter(principal.userId(), runId, cursor);
-                    for (RunEventRow ev : nextEvents) {
-                        sendSseEvent(emitter, ev);
-                        cursor = ev.sequence();
-                        if (TERMINAL_EVENTS.contains(ev.eventType())) {
-                            emitter.complete();
-                            return;
-                        }
-                    }
-                    Thread.sleep(25L);
-                }
-                emitter.complete();
-            } catch (Exception ex) {
-                emitter.completeWithError(ex);
-            }
-        });
-
-        return emitter;
+        return sharedSseEventMultiplexer.subscribe(principal.userId(), runId, initialCursor);
     }
 
-    private static void sendSseEvent(SseEmitter emitter, RunEventRow ev) throws IOException {
-        emitter.send(
-            SseEmitter.event()
-                .id(String.valueOf(ev.sequence()))
-                .name(ev.eventType())
-                .data(ev.payloadJson(), MediaType.APPLICATION_JSON)
-        );
+    @GetMapping("/api/v1/admin/dlq")
+    public ResponseEntity<Map<String, List<DlqEventRow>>> listDlqEvents() {
+        return ResponseEntity.ok(Map.of("items", outboxRelayAndInboxService.listDlqEvents()));
+    }
+
+    @PostMapping("/api/v1/admin/dlq/{eventId}/replay")
+    public ResponseEntity<DlqReplayResult> replayDlqEvent(@PathVariable UUID eventId) {
+        return ResponseEntity.ok(outboxRelayAndInboxService.replayDlqEvent(eventId));
     }
 }
