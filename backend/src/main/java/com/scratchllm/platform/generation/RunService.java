@@ -68,7 +68,7 @@ public class RunService {
     private final GenerationProvider generationProvider;
     private final ObjectMapper objectMapper;
     private final int defaultDailyAllowance;
-    private final boolean inlineFakeDispatchEnabled;
+    private volatile boolean inlineFakeDispatchEnabled;
     private final ExecutorService fakeExecutor = Executors.newFixedThreadPool(4);
     private final Semaphore singleGpuGenerationSlot = new Semaphore(1, true);
 
@@ -90,6 +90,14 @@ public class RunService {
         this.objectMapper = objectMapper;
         this.defaultDailyAllowance = defaultDailyAllowance;
         this.inlineFakeDispatchEnabled = inlineFakeDispatchEnabled;
+    }
+
+    public void setInlineFakeDispatchEnabled(boolean enabled) {
+        this.inlineFakeDispatchEnabled = enabled;
+    }
+
+    public boolean isInlineFakeDispatchEnabled() {
+        return this.inlineFakeDispatchEnabled;
     }
 
     @PreDestroy
@@ -184,8 +192,12 @@ public class RunService {
         // 6. Acquire PostgreSQL locks in strict canonical order:
         //    (a) system_capacity -> (b) usage_buckets -> (c) conversations
         CapacityRow capacity = jdbcTemplate.queryForObject(
-            "SELECT max_waiting_runs, active_or_waiting_runs FROM system_capacity WHERE id = 1 FOR UPDATE",
-            (rs, rowNum) -> new CapacityRow(rs.getInt("max_waiting_runs"), rs.getInt("active_or_waiting_runs"))
+            "SELECT max_waiting_runs, active_or_waiting_runs, max_unpublished_outbox_events FROM system_capacity WHERE id = 1 FOR UPDATE",
+            (rs, rowNum) -> new CapacityRow(
+                rs.getInt("max_waiting_runs"),
+                rs.getInt("active_or_waiting_runs"),
+                rs.getInt("max_unpublished_outbox_events")
+            )
         );
 
         LocalDate todayUtc = LocalDate.now(ZoneOffset.UTC);
@@ -245,6 +257,19 @@ public class RunService {
                 HttpStatus.CONFLICT,
                 "ACTIVE_RUN_EXISTS",
                 "Conversation already has a queued or running generation run."
+            );
+        }
+
+        // Day062: Enforce Outbox High-Water-Mark Backpressure before accepting new work
+        Integer unpublishedOutbox = jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM outbox_events WHERE published_at IS NULL",
+            Integer.class
+        );
+        if (unpublishedOutbox != null && unpublishedOutbox >= capacity.maxUnpublishedOutboxEvents()) {
+            throw new ApiException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "OUTBOX_BACKPRESSURE_EXCEEDED",
+                "Unpublished outbox backlog exceeds high-water mark; retry after broker recovery."
             );
         }
 
@@ -388,6 +413,10 @@ public class RunService {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
+                    jdbcTemplate.update(
+                        "UPDATE outbox_events SET published_at = clock_timestamp() WHERE event_id = ? AND published_at IS NULL",
+                        outboxEventId
+                    );
                     fakeExecutor.submit(() -> executeFakeRun(runId));
                 }
             });
@@ -458,7 +487,7 @@ public class RunService {
     }
 
     @Transactional(readOnly = true)
-    public List<RunEventRow> listRunEventsAfter(UUID userId, UUID runId, long afterSequence) {
+    public void verifyRunOwnership(UUID userId, UUID runId) {
         Integer owned = jdbcTemplate.queryForObject(
             "SELECT count(*) FROM generation_runs WHERE id = ? AND user_id = ?",
             Integer.class,
@@ -467,6 +496,11 @@ public class RunService {
         if (owned == null || owned == 0) {
             throw new ApiException(HttpStatus.NOT_FOUND, "RUN_NOT_FOUND", "Generation run not found.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<RunEventRow> listRunEventsAfter(UUID userId, UUID runId, long afterSequence) {
+        verifyRunOwnership(userId, runId);
 
         return jdbcTemplate.query(
             """
@@ -729,6 +763,16 @@ public class RunService {
             runId
         );
         if (updated > 0) {
+            jdbcTemplate.update(
+                """
+                UPDATE work_items
+                SET state = 'CANCELLED',
+                    lease_expires_at = NULL,
+                    updated_at = clock_timestamp()
+                WHERE work_kind = 'GENERATION_RUN' AND target_id = ?
+                """,
+                runId
+            );
             refundReservation(runId);
             jdbcTemplate.update(
                 "UPDATE system_capacity SET active_or_waiting_runs = GREATEST(0, active_or_waiting_runs - 1), updated_at = clock_timestamp() WHERE id = 1"
@@ -945,7 +989,7 @@ public class RunService {
 
     private record ConversationMeta(UUID id, UUID workspaceId, UUID ownerUserId) {}
     private record ModelRevisionMeta(String revisionTag, int contextLimit, int maxOutputTokens) {}
-    private record CapacityRow(int maxWaitingRuns, int activeOrWaitingRuns) {}
+    private record CapacityRow(int maxWaitingRuns, int activeOrWaitingRuns, int maxUnpublishedOutboxEvents) {}
     private record UsageBucketRow(UUID id, int dailyAllowanceTokens, int reservedTokens, int settledTokens) {}
     private record IdempotencyRow(
         String requestHash,
