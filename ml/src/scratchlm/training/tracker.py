@@ -112,7 +112,7 @@ class SpoolingMlflowRestTracker:
         tracking_uri: str = "http://127.0.0.1:5001",
         spool_dir: Path | None = None,
         max_spool_bytes: int = 4 * 1024 * 1024,
-        timeout_seconds: float = 5.0,
+        timeout_seconds: float = 15.0,
     ) -> None:
         self.tracking_uri = tracking_uri.rstrip("/")
         self.spool_dir = spool_dir

@@ -42,11 +42,12 @@ public class ModelCatalogService {
     public List<ModelCatalogEntry> listReadyModels() {
         List<ModelCatalogEntry> entries = jdbcTemplate.query(
             """
-            SELECT model_alias, revision_tag, mlflow_model_version, artifact_checksum, tokenizer_hash,
-                   context_limit, max_output_tokens, is_scratch_model, capability_note
-            FROM model_revisions
-            WHERE readiness_status = 'READY'
-            ORDER BY created_at ASC
+            SELECT mr.model_alias, mr.revision_tag, mr.mlflow_model_version, mr.artifact_checksum, mr.tokenizer_hash,
+                   mr.context_limit, mr.max_output_tokens, mr.is_scratch_model, mr.capability_note
+            FROM active_model_releases amr
+            JOIN model_revisions mr ON mr.revision_tag = amr.active_revision_tag
+            WHERE mr.readiness_status = 'READY'
+            ORDER BY mr.created_at ASC
             """,
             (rs, rowNum) -> new ModelCatalogEntry(
                 rs.getString("model_alias"),
@@ -62,6 +63,7 @@ public class ModelCatalogService {
         );
         for (ModelCatalogEntry entry : entries) {
             putInRedisQuietly(entry);
+            putActiveAliasInRedisQuietly(entry);
         }
         return entries;
     }
@@ -85,6 +87,35 @@ public class ModelCatalogService {
             }
         } catch (Exception ignored) {
             // Transparent fallback to PostgreSQL if Redis is unreachable
+        }
+
+        List<ModelCatalogEntry> activeReleaseRows = jdbcTemplate.query(
+            """
+            SELECT mr.model_alias, mr.revision_tag, mr.mlflow_model_version, mr.artifact_checksum, mr.tokenizer_hash,
+                   mr.context_limit, mr.max_output_tokens, mr.is_scratch_model, mr.capability_note
+            FROM active_model_releases amr
+            JOIN model_revisions mr ON mr.revision_tag = amr.active_revision_tag
+            WHERE amr.model_alias = ? AND mr.readiness_status = 'READY'
+            LIMIT 1
+            """,
+            (rs, rowNum) -> new ModelCatalogEntry(
+                rs.getString("model_alias"),
+                rs.getString("revision_tag"),
+                rs.getString("mlflow_model_version"),
+                rs.getString("artifact_checksum"),
+                rs.getString("tokenizer_hash"),
+                rs.getInt("context_limit"),
+                rs.getInt("max_output_tokens"),
+                rs.getBoolean("is_scratch_model"),
+                rs.getString("capability_note")
+            ),
+            cleanAlias
+        );
+        if (!activeReleaseRows.isEmpty()) {
+            ModelCatalogEntry found = activeReleaseRows.getFirst();
+            putInRedisQuietly(found);
+            putActiveAliasInRedisQuietly(found);
+            return Optional.of(found);
         }
 
         List<ModelCatalogEntry> rows = jdbcTemplate.query(
@@ -114,6 +145,7 @@ public class ModelCatalogService {
         }
         ModelCatalogEntry found = rows.getFirst();
         putInRedisQuietly(found);
+        putActiveAliasInRedisQuietly(found);
         return Optional.of(found);
     }
 
@@ -187,17 +219,24 @@ public class ModelCatalogService {
         }
     }
 
+    public void putActiveAliasInRedisQuietly(ModelCatalogEntry entry) {
+        try {
+            redisTemplate.opsForValue().set(
+                REDIS_ALIAS_KEY_PREFIX + entry.alias(),
+                entry.model_revision(),
+                cacheTtl
+            );
+        } catch (RuntimeException ignored) {
+            // Non-fatal: PostgreSQL remains authoritative
+        }
+    }
+
     private void putInRedisQuietly(ModelCatalogEntry entry) {
         try {
             String json = objectMapper.writeValueAsString(entry);
             redisTemplate.opsForValue().set(
                 REDIS_REVISION_KEY_PREFIX + entry.model_revision(),
                 json,
-                cacheTtl
-            );
-            redisTemplate.opsForValue().set(
-                REDIS_ALIAS_KEY_PREFIX + entry.alias(),
-                entry.model_revision(),
                 cacheTtl
             );
         } catch (JsonProcessingException | RuntimeException ignored) {
