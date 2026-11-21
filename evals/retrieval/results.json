@@ -1,0 +1,97 @@
+{
+  "benchmark_id": "scratchlm-retrieval-benchmark-v1",
+  "corpus_id": "scratchlm-authored-retrieval-corpus-v1",
+  "embedding_model_revision": "pretrained-cpu-hash384-v1",
+  "embedding_dimension": 384,
+  "chunker_version": "paragraph-window-v1",
+  "total_indexed_chunks": 15,
+  "modes": {
+    "lexical": {
+      "dev": {
+        "num_questions": 16,
+        "num_answerable": 14,
+        "num_unanswerable": 2,
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "mrr": 1.0,
+        "unanswerable_abstention_rate": 1.0
+      },
+      "test": {
+        "num_questions": 16,
+        "num_answerable": 13,
+        "num_unanswerable": 3,
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "mrr": 1.0,
+        "unanswerable_abstention_rate": 0.6667
+      },
+      "all": {
+        "num_questions": 32,
+        "num_answerable": 27,
+        "num_unanswerable": 5,
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "mrr": 1.0,
+        "unanswerable_abstention_rate": 0.8
+      }
+    },
+    "vector": {
+      "dev": {
+        "num_questions": 16,
+        "num_answerable": 14,
+        "num_unanswerable": 2,
+        "recall_at_1": 0.9286,
+        "recall_at_3": 1.0,
+        "mrr": 0.9643,
+        "unanswerable_abstention_rate": 1.0
+      },
+      "test": {
+        "num_questions": 16,
+        "num_answerable": 13,
+        "num_unanswerable": 3,
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "mrr": 1.0,
+        "unanswerable_abstention_rate": 1.0
+      },
+      "all": {
+        "num_questions": 32,
+        "num_answerable": 27,
+        "num_unanswerable": 5,
+        "recall_at_1": 0.963,
+        "recall_at_3": 1.0,
+        "mrr": 0.9815,
+        "unanswerable_abstention_rate": 1.0
+      }
+    },
+    "hybrid": {
+      "dev": {
+        "num_questions": 16,
+        "num_answerable": 14,
+        "num_unanswerable": 2,
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "mrr": 1.0,
+        "unanswerable_abstention_rate": 1.0
+      },
+      "test": {
+        "num_questions": 16,
+        "num_answerable": 13,
+        "num_unanswerable": 3,
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "mrr": 1.0,
+        "unanswerable_abstention_rate": 1.0
+      },
+      "all": {
+        "num_questions": 32,
+        "num_answerable": 27,
+        "num_unanswerable": 5,
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "mrr": 1.0,
+        "unanswerable_abstention_rate": 1.0
+      }
+    }
+  }
+}

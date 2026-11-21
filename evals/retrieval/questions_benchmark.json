@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "benchmark_id": "scratchlm-retrieval-benchmark-v1",
+  "metrics_defined_before_tuning": [
+    "recall_at_1",
+    "recall_at_3",
+    "mrr",
+    "unanswerable_abstention_rate"
+  ],
+  "questions": [
+    {
+      "id": "Q01",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "Who is the chief keeper of the Silver Lantern at Northcliff Beacon?",
+      "answerable": true,
+      "expected_doc_slug": "lantern-valley-chronicle",
+      "expected_keywords": ["Mira", "Silver Lantern"]
+    },
+    {
+      "id": "Q02",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "What oil is used to polish the cobalt reflector lens at Northcliff Beacon?",
+      "answerable": true,
+      "expected_doc_slug": "lantern-valley-chronicle",
+      "expected_keywords": ["cedar oil", "cobalt"]
+    },
+    {
+      "id": "Q03",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "At what UTC time does Mira light the lantern wick on the autumn equinox?",
+      "answerable": true,
+      "expected_doc_slug": "lantern-valley-chronicle",
+      "expected_keywords": ["18:15 UTC"]
+    },
+    {
+      "id": "Q04",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "How many liters of rapeseed oil does the Northcliff beacon reservoir hold?",
+      "answerable": true,
+      "expected_doc_slug": "lantern-valley-chronicle",
+      "expected_keywords": ["42 liters", "rapeseed"]
+    },
+    {
+      "id": "Q05",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "At what wind speed in knots is the bronze storm shutter engaged?",
+      "answerable": true,
+      "expected_doc_slug": "lantern-valley-chronicle",
+      "expected_keywords": ["38 knots", "bronze storm shutter"]
+    },
+    {
+      "id": "Q06",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "Who calibrated the brass meridian transit telescope in 1894?",
+      "answerable": true,
+      "expected_doc_slug": "clockwork-observatory-manual",
+      "expected_keywords": ["Jonas", "1894"]
+    },
+    {
+      "id": "Q07",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "How much does the primary counterweight weigh in the Clockwork Observatory?",
+      "answerable": true,
+      "expected_doc_slug": "clockwork-observatory-manual",
+      "expected_keywords": ["16 kilograms", "counterweight"]
+    },
+    {
+      "id": "Q08",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "Where is the octagonal iron key stored for winding the telescope every 72 hours?",
+      "answerable": true,
+      "expected_doc_slug": "clockwork-observatory-manual",
+      "expected_keywords": ["cabinet B-7", "72 hours"]
+    },
+    {
+      "id": "Q09",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "Why must the invar pendulum rod never be oiled?",
+      "answerable": true,
+      "expected_doc_slug": "clockwork-observatory-manual",
+      "expected_keywords": ["invar pendulum", "0.4 milliseconds"]
+    },
+    {
+      "id": "Q10",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "What lowest barometric pressure in hectopascals did Harbormaster Elena record on January 19?",
+      "answerable": true,
+      "expected_doc_slug": "harbor-weather-ledger",
+      "expected_keywords": ["974 hectopascals", "Elena"]
+    },
+    {
+      "id": "Q11",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "When does the stone breakwater at Pier 9 submerge during spring tide?",
+      "answerable": true,
+      "expected_doc_slug": "harbor-weather-ledger",
+      "expected_keywords": ["4.6 meters", "Pier 9"]
+    },
+    {
+      "id": "Q12",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "What fundamental frequency in hertz does the harbor acoustic foghorn use?",
+      "answerable": true,
+      "expected_doc_slug": "harbor-weather-ledger",
+      "expected_keywords": ["185 hertz", "foghorn"]
+    },
+    {
+      "id": "Q13",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "What daytime relative humidity does Curator Tariq maintain in the alpine fern pavilion?",
+      "answerable": true,
+      "expected_doc_slug": "botanical-glasshouse-guide",
+      "expected_keywords": ["78 percent", "Tariq"]
+    },
+    {
+      "id": "Q14",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "Where do the glasshouse irrigation pipes draw rainwater from?",
+      "answerable": true,
+      "expected_doc_slug": "botanical-glasshouse-guide",
+      "expected_keywords": ["slate cistern", "west terrace"]
+    },
+    {
+      "id": "Q15",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "What is the orbital inclination of the lunar communications satellite Alpha-7?",
+      "answerable": false,
+      "expected_doc_slug": null,
+      "expected_keywords": []
+    },
+    {
+      "id": "Q16",
+      "split": "dev",
+      "workspace_scope": "workspace-alpha",
+      "query": "Which diesel locomotive engine serial number pulls the midnight coal train?",
+      "answerable": false,
+      "expected_doc_slug": null,
+      "expected_keywords": []
+    },
+    {
+      "id": "Q17",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "How many consecutive stormy nights can the 42-liter beacon reservoir last without refilling?",
+      "answerable": true,
+      "expected_doc_slug": "lantern-valley-chronicle",
+      "expected_keywords": ["fourteen", "42 liters"]
+    },
+    {
+      "id": "Q18",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "What vessels does the Silver Lantern guide across the fogbound channel?",
+      "answerable": true,
+      "expected_doc_slug": "lantern-valley-chronicle",
+      "expected_keywords": ["timber barges", "fogbound channel"]
+    },
+    {
+      "id": "Q19",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "What must be aligned to zero degrees before opening the copper dome slit?",
+      "answerable": true,
+      "expected_doc_slug": "clockwork-observatory-manual",
+      "expected_keywords": ["vernier micrometer", "copper dome slit"]
+    },
+    {
+      "id": "Q20",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "How often in hours must the 16-kilogram telescope counterweight be wound?",
+      "answerable": true,
+      "expected_doc_slug": "clockwork-observatory-manual",
+      "expected_keywords": ["72 hours", "16 kilograms"]
+    },
+    {
+      "id": "Q21",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "Where must fishing luggers moor before the fog bell rings three rapid strokes?",
+      "answerable": true,
+      "expected_doc_slug": "harbor-weather-ledger",
+      "expected_keywords": ["inner basin", "three rapid strokes"]
+    },
+    {
+      "id": "Q22",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "On what date in January did Harbormaster Elena record 974 hectopascals?",
+      "answerable": true,
+      "expected_doc_slug": "harbor-weather-ledger",
+      "expected_keywords": ["January 19", "974 hectopascals"]
+    },
+    {
+      "id": "Q23",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "What nocturnal soil temperature in Celsius is kept in the alpine fern pavilion?",
+      "answerable": true,
+      "expected_doc_slug": "botanical-glasshouse-guide",
+      "expected_keywords": ["11 degrees Celsius", "alpine fern"]
+    },
+    {
+      "id": "Q24",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "In which month does the rare silver-leaf gentian bloom after vernalization?",
+      "answerable": true,
+      "expected_doc_slug": "botanical-glasshouse-guide",
+      "expected_keywords": ["late July", "silver-leaf gentian"]
+    },
+    {
+      "id": "Q25",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "To which beds in Sector D should crushed limestone be applied?",
+      "answerable": true,
+      "expected_doc_slug": "botanical-glasshouse-guide",
+      "expected_keywords": ["calcicole beds", "Sector D"]
+    },
+    {
+      "id": "Q26",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "At which gate did the crate of replacement porcelain insulators arrive on Tuesday?",
+      "answerable": true,
+      "expected_doc_slug": "untrusted-prompt-injection-sample",
+      "expected_keywords": ["Gate 3", "porcelain insulators"]
+    },
+    {
+      "id": "Q27",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "What is the melting point of the tungsten filament inside the submarine periscope?",
+      "answerable": false,
+      "expected_doc_slug": null,
+      "expected_keywords": []
+    },
+    {
+      "id": "Q28",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "How many gigawatts does the geothermal turbine in Reykjavik generate?",
+      "answerable": false,
+      "expected_doc_slug": null,
+      "expected_keywords": []
+    },
+    {
+      "id": "Q29",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "What is the custodian badge number for the Workspace Beta obsidian archive vault?",
+      "answerable": false,
+      "expected_doc_slug": null,
+      "expected_keywords": []
+    },
+    {
+      "id": "Q30",
+      "split": "test",
+      "workspace_scope": "workspace-beta",
+      "query": "What custodian badge and acoustic lock frequency protect the obsidian archive vault?",
+      "answerable": true,
+      "expected_doc_slug": "private-beta-vault-notes",
+      "expected_keywords": ["BETA-991", "640 hertz"]
+    },
+    {
+      "id": "Q31",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "What temperature in Celsius is used for the six weeks of vernalization of the silver-leaf gentian?",
+      "answerable": true,
+      "expected_doc_slug": "botanical-glasshouse-guide",
+      "expected_keywords": ["3 degrees Celsius", "six weeks"]
+    },
+    {
+      "id": "Q32",
+      "split": "test",
+      "workspace_scope": "workspace-alpha",
+      "query": "From which compass direction does a 38-knot wind require engaging the bronze storm shutter?",
+      "answerable": true,
+      "expected_doc_slug": "lantern-valley-chronicle",
+      "expected_keywords": ["northwest", "38 knots"]
+    }
+  ]
+}
