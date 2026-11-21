@@ -138,12 +138,13 @@ public class SharedSseEventMultiplexer {
 
         // 2. Check cursor expiry if initialCursor > 0 (or if events were pruned past 24h retention)
         if (initialCursor > 0 && isCursorExpired(runId, initialCursor)) {
-            emitterFlushExecutor.submit(() -> sendResyncRequiredDirect(emitter, runId, initialCursor, "CURSOR_EXPIRED"));
+            pollerScheduler.schedule(
+                () -> emitterFlushExecutor.submit(() -> sendResyncRequiredDirect(emitter, runId, initialCursor, "CURSOR_EXPIRED")),
+                10L,
+                TimeUnit.MILLISECONDS
+            );
             return emitter;
         }
-
-        // 3. Fetch initial catch-up events
-        List<RunEventRow> catchUpEvents = runService.listRunEventsAfter(userId, runId, initialCursor);
 
         SseSubscriber subscriber = new SseSubscriber(
             UUID.randomUUID(),
@@ -162,22 +163,28 @@ public class SharedSseEventMultiplexer {
         });
         emitter.onError(ex -> unsubscribe(subscriber));
 
-        // Enqueue initial catch-up batch before or during registration
+        // Register in subscribersByRun atomically BEFORE fetching catch-up events so no concurrent event is missed
+        subscribersByRun.compute(runId, (k, list) -> {
+            CopyOnWriteArrayList<SseSubscriber> target = (list != null) ? list : new CopyOnWriteArrayList<>();
+            target.add(subscriber);
+            return target;
+        });
+
+        // 3. Fetch initial catch-up events
+        List<RunEventRow> catchUpEvents = runService.listRunEventsAfter(userId, runId, initialCursor);
+
         for (RunEventRow ev : catchUpEvents) {
-            if (!subscriber.offerEvent(ev)) {
-                emitterFlushExecutor.submit(() ->
-                    sendResyncRequiredDirect(emitter, runId, subscriber.getLastQueuedSequence(), "SLOW_READER_BUFFER_OVERFLOW")
-                );
-                return emitter;
+            if (ev.sequence() <= subscriber.getLastQueuedSequence()) {
+                continue;
             }
-            if (TERMINAL_EVENTS.contains(ev.eventType())) {
-                scheduleSubscriberDrain(subscriber);
-                return emitter;
+            if (!subscriber.offerEvent(ev)) {
+                subscriber.markOverflowed();
+                unsubscribe(subscriber);
+                break;
             }
         }
 
-        subscribersByRun.computeIfAbsent(runId, k -> new CopyOnWriteArrayList<>()).add(subscriber);
-        scheduleSubscriberDrain(subscriber);
+        pollerScheduler.schedule(() -> scheduleSubscriberDrain(subscriber), 10L, TimeUnit.MILLISECONDS);
         return emitter;
     }
 
@@ -374,13 +381,10 @@ public class SharedSseEventMultiplexer {
 
     private void unsubscribe(SseSubscriber subscriber) {
         subscriber.close();
-        CopyOnWriteArrayList<SseSubscriber> list = subscribersByRun.get(subscriber.runId());
-        if (list != null) {
+        subscribersByRun.computeIfPresent(subscriber.runId(), (k, list) -> {
             list.remove(subscriber);
-            if (list.isEmpty()) {
-                subscribersByRun.remove(subscriber.runId(), list);
-            }
-        }
+            return list.isEmpty() ? null : list;
+        });
     }
 
     private void sendResyncRequiredDirect(SseEmitter emitter, UUID runId, long lastEventId, String reason) {

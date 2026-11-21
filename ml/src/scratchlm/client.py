@@ -228,21 +228,25 @@ class ScratchLlmClient:
         top_k: int = 40,
         top_p: float = 0.95,
         seed: int | None = 42,
+        document_ids: list[str] | None = None,
     ) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "prompt": prompt,
+            "model_alias": model_alias,
+            "sampling": {
+                "max_new_tokens": max_new_tokens,
+                "temperature": temperature,
+                "top_k": top_k,
+                "top_p": top_p,
+                "seed": seed,
+            },
+        }
+        if document_ids is not None:
+            payload["document_ids"] = document_ids
         resp = self._client.post(
             f"/api/v1/conversations/{conversation_id}/runs",
             headers=self._csrf_headers({"Idempotency-Key": idempotency_key}),
-            json={
-                "prompt": prompt,
-                "model_alias": model_alias,
-                "sampling": {
-                    "max_new_tokens": max_new_tokens,
-                    "temperature": temperature,
-                    "top_k": top_k,
-                    "top_p": top_p,
-                    "seed": seed,
-                },
-            },
+            json=payload,
         )
         resp.raise_for_status()
         return dict(resp.json())
@@ -392,3 +396,121 @@ class ScratchLlmClient:
         )
         resp.raise_for_status()
         return dict(resp.json())
+
+    # ------------------------------------------------------------------
+    # Phase 8: Document Upload, Retrieval, and Inspectable Citations
+    # ------------------------------------------------------------------
+
+    def upload_document(
+        self,
+        workspace_id: str,
+        filename: str,
+        content: str,
+        mime_type: str = "text/markdown",
+        document_id: str | None = None,
+    ) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "filename": filename,
+            "mime_type": mime_type,
+            "content": content,
+        }
+        if document_id is not None:
+            payload["document_id"] = document_id
+        resp = self._client.post(
+            f"/api/v1/workspaces/{workspace_id}/documents",
+            headers=self._csrf_headers(),
+            json=payload,
+        )
+        resp.raise_for_status()
+        return dict(resp.json())
+
+    def list_documents(self, workspace_id: str) -> dict[str, Any]:
+        resp = self._client.get(f"/api/v1/workspaces/{workspace_id}/documents")
+        resp.raise_for_status()
+        return dict(resp.json())
+
+    def get_document(self, document_id: str) -> dict[str, Any]:
+        resp = self._client.get(f"/api/v1/documents/{document_id}")
+        resp.raise_for_status()
+        return dict(resp.json())
+
+    def delete_document(self, document_id: str) -> dict[str, Any]:
+        resp = self._client.delete(
+            f"/api/v1/documents/{document_id}",
+            headers=self._csrf_headers(),
+        )
+        resp.raise_for_status()
+        return dict(resp.json())
+
+    def search_documents(
+        self,
+        workspace_id: str,
+        query: str,
+        mode: str = "hybrid",
+        top_k: int = 3,
+        min_score: float = 0.18,
+        document_ids: list[str] | None = None,
+    ) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "query": query,
+            "mode": mode,
+            "top_k": top_k,
+            "min_score": min_score,
+        }
+        if document_ids is not None:
+            payload["document_ids"] = document_ids
+        resp = self._client.post(
+            f"/api/v1/workspaces/{workspace_id}/documents/search",
+            headers=self._csrf_headers(),
+            json=payload,
+        )
+        resp.raise_for_status()
+        return dict(resp.json())
+
+    def get_run_citations(self, run_id: str) -> dict[str, Any]:
+        resp = self._client.get(f"/api/v1/runs/{run_id}/citations")
+        resp.raise_for_status()
+        return dict(resp.json())
+
+    def validate_run_citations(
+        self, run_id: str, citation_ids: list[str]
+    ) -> dict[str, Any]:
+        resp = self._client.post(
+            f"/api/v1/runs/{run_id}/citations/validate",
+            headers=self._csrf_headers(),
+            json={"citation_ids": citation_ids},
+        )
+        resp.raise_for_status()
+        return dict(resp.json())
+
+    @staticmethod
+    def format_citations_for_cli(citations: list[dict[str, Any]]) -> str:
+        """
+        Day077 & Day079: Renders inspectable source citations for the CLI, distinguishing
+        stored evidence snippets from generated text and explicitly reporting unavailable
+        citations (`UNAVAILABLE_DELETED`) when a cited source document has been deleted.
+        """
+        if not citations:
+            return "[Citations] No retrieved sources attached to this run."
+        lines: list[str] = ["[Citations — Verified Workspace Sources]"]
+        for idx, c in enumerate(citations, start=1):
+            cit_id = str(c.get("citation_id", f"cit-{idx}"))
+            filename = str(c.get("filename", "unknown"))
+            loc = str(c.get("source_location", ""))
+            rev = c.get("document_revision", 1)
+            status = str(c.get("availability_status", "AVAILABLE"))
+            score = float(c.get("score", 0.0))
+            if status == "UNAVAILABLE_DELETED":
+                lines.append(
+                    f"  [{cit_id}] {filename} (rev {rev}, {loc}) -> "
+                    "[UNAVAILABLE: Source document was deleted or superseded]"
+                )
+            else:
+                snippet = str(c.get("snippet", "")).replace("\n", " ").strip()
+                trunc_flag = " [truncated]" if c.get("truncated") else ""
+                lines.append(
+                    f"  [{cit_id}] {filename} (rev {rev}, {loc}, score={score:.4f}{trunc_flag}): "
+                    f'"{snippet}"'
+                )
+        return "\n".join(lines)
+

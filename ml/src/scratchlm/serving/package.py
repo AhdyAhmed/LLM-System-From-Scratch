@@ -286,7 +286,7 @@ class MlflowRegistryCandidateManager:
       3. Only the `candidate` alias is set; active serving (`champion`) is NEVER automatically set.
     """
 
-    def __init__(self, tracking_uri: str = "http://127.0.0.1:5001", timeout_seconds: float = 5.0) -> None:
+    def __init__(self, tracking_uri: str = "http://127.0.0.1:5001", timeout_seconds: float = 20.0) -> None:
         self.tracking_uri = tracking_uri.rstrip("/")
         self.timeout_seconds = timeout_seconds
 

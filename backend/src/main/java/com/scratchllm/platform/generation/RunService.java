@@ -2,6 +2,8 @@ package com.scratchllm.platform.generation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scratchllm.platform.documents.DocumentIngestionAndRetrievalService;
+import com.scratchllm.platform.documents.DocumentIngestionAndRetrievalService.RagContextSnapshot;
 import com.scratchllm.platform.generation.GenerationProvider.FaultInjectionSpec;
 import com.scratchllm.platform.generation.GenerationProvider.FinishReason;
 import com.scratchllm.platform.generation.GenerationProvider.GenerationCommand;
@@ -50,13 +52,14 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Day016, Day018, Day054, Day055, Day056 & Day058:
+ * Day016, Day018, Day054, Day055, Day056, Day058 & Day077:
  * - Idempotent run creation in PostgreSQL with canonical client request hashing (independent of model alias resolution)
  * - Replay verification BEFORE rate-limit or capacity/quota admission
  * - Cache-aside Redis model metadata resolution via ModelCatalogService (`model:rev:{revision}`) with PostgreSQL fallback
  * - Explicit Day058 context-budget enforcement (`estimatedPromptTokens + max_new_tokens <= context_limit`)
  * - Canonical deadlock-free lock hierarchy (system_capacity -> usage_buckets -> conversations)
  * - Single-GPU active generation slot (`Semaphore(1, true)`) with queued-run cap 8 and immediate slot release on cancel
+ * - Day077 RAG context assembly, `retrieval_snapshots` persistence, and `retrieval.context` SSE emission
  */
 @Service
 public class RunService {
@@ -65,6 +68,7 @@ public class RunService {
     private final TransactionTemplate transactionTemplate;
     private final RedisRateLimiterService rateLimiterService;
     private final ModelCatalogService modelCatalogService;
+    private final DocumentIngestionAndRetrievalService documentIngestionAndRetrievalService;
     private final GenerationProvider generationProvider;
     private final ObjectMapper objectMapper;
     private final int defaultDailyAllowance;
@@ -77,6 +81,7 @@ public class RunService {
         PlatformTransactionManager transactionManager,
         RedisRateLimiterService rateLimiterService,
         ModelCatalogService modelCatalogService,
+        DocumentIngestionAndRetrievalService documentIngestionAndRetrievalService,
         GenerationProvider generationProvider,
         ObjectMapper objectMapper,
         @Value("${scratchllm.quota.daily-allowance-tokens:4096}") int defaultDailyAllowance,
@@ -86,6 +91,7 @@ public class RunService {
         this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.rateLimiterService = rateLimiterService;
         this.modelCatalogService = modelCatalogService;
+        this.documentIngestionAndRetrievalService = documentIngestionAndRetrievalService;
         this.generationProvider = generationProvider;
         this.objectMapper = objectMapper;
         this.defaultDailyAllowance = defaultDailyAllowance;
@@ -386,6 +392,28 @@ public class RunService {
             """,
             runId, queuedEventPayload
         );
+
+        // Day077: When document_ids are attached, assemble RAG context within context_limit,
+        // persist retrieval_snapshots, and emit retrieval.context SSE event (sequence = 2).
+        if (request.document_ids() != null && !request.document_ids().isEmpty()) {
+            RagContextSnapshot ragSnapshot = documentIngestionAndRetrievalService.assembleRagContextAndPersistSnapshot(
+                userId,
+                workspaceId,
+                runId,
+                request.prompt(),
+                request.document_ids(),
+                modelMeta.contextLimit(),
+                estimatedPromptTokens,
+                requestedOutputTokens
+            );
+            appendRunEvent(runId, "retrieval.context", Map.of(
+                "run_id", runId.toString(),
+                "schema_version", 1,
+                "embedding_model_revision", ragSnapshot.embedding_model_revision(),
+                "budget_tokens", ragSnapshot.budget_tokens(),
+                "citations", ragSnapshot.citations()
+            ));
+        }
 
         UUID outboxEventId = UUID.randomUUID();
         String outboxPayload = toJson(Map.of(

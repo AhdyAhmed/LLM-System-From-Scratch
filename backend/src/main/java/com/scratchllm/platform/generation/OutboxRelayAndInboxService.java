@@ -270,6 +270,65 @@ public class OutboxRelayAndInboxService {
                 });
             }
 
+            if (KafkaEventsInfrastructure.TOPIC_DOCUMENT_INGESTION.equals(topic)) {
+                UUID documentId = UUID.fromString(root.get("document_id").asText());
+                String payloadHash = sha256Hex(rawJson);
+
+                return transactionTemplate.execute(status -> {
+                    int insertedInbox = jdbcTemplate.update(
+                        """
+                        INSERT INTO consumer_inbox (id, consumer_name, event_id, payload_hash)
+                        VALUES (?, 'document-ingestion-inbox', ?, ?)
+                        ON CONFLICT (consumer_name, event_id) DO NOTHING
+                        """,
+                        UUID.randomUUID(),
+                        eventId,
+                        payloadHash
+                    );
+                    if (insertedInbox == 0) {
+                        return new InboxConsumeResult(eventId, false, false, false, "DUPLICATE_EVENT_IGNORED");
+                    }
+
+                    List<String> docStatuses = jdbcTemplate.query(
+                        "SELECT ingestion_status FROM documents WHERE id = ? FOR UPDATE",
+                        (rs, rowNum) -> rs.getString("ingestion_status"),
+                        documentId
+                    );
+                    if (docStatuses.isEmpty()) {
+                        routeToDlq(
+                            eventId,
+                            topic,
+                            aggregateKey,
+                            rawJson,
+                            "TARGET_DOCUMENT_NOT_FOUND",
+                            "documents row does not exist for document_id=" + documentId,
+                            MAX_CONSUMER_RETRIES
+                        );
+                        return new InboxConsumeResult(eventId, true, false, true, "TARGET_DOCUMENT_NOT_FOUND");
+                    }
+
+                    String docStatus = docStatuses.getFirst();
+                    if ("DELETED".equals(docStatus)) {
+                        return new InboxConsumeResult(eventId, true, false, false, "DOCUMENT_ALREADY_DELETED");
+                    }
+
+                    int upsertedWork = jdbcTemplate.update(
+                        """
+                        INSERT INTO work_items (id, work_kind, target_id, state)
+                        VALUES (?, 'DOCUMENT_INGESTION', ?, 'PENDING')
+                        ON CONFLICT (work_kind, target_id) DO UPDATE
+                        SET state = 'PENDING',
+                            lease_owner = NULL,
+                            lease_expires_at = NULL,
+                            updated_at = clock_timestamp()
+                        """,
+                        UUID.randomUUID(),
+                        documentId
+                    );
+                    return new InboxConsumeResult(eventId, true, upsertedWork > 0, false, null);
+                });
+            }
+
             throw new IllegalArgumentException("Unsupported Kafka topic: " + topic);
         } catch (Exception ex) {
             UUID dlqEventId = parsedEventId != null ? parsedEventId : UUID.randomUUID();
