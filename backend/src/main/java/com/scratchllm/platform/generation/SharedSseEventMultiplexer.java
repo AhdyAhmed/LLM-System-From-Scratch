@@ -163,14 +163,8 @@ public class SharedSseEventMultiplexer {
         });
         emitter.onError(ex -> unsubscribe(subscriber));
 
-        // Register in subscribersByRun atomically BEFORE fetching catch-up events so no concurrent event is missed
-        subscribersByRun.compute(runId, (k, list) -> {
-            CopyOnWriteArrayList<SseSubscriber> target = (list != null) ? list : new CopyOnWriteArrayList<>();
-            target.add(subscriber);
-            return target;
-        });
-
-        // 3. Fetch initial catch-up events
+        // 3. Fetch and enqueue initial catch-up events strictly in sequence order BEFORE exposing subscriber
+        //    to pollActiveRunsBatch so concurrent poller ticks cannot advance lastQueuedSequence ahead of sequence 1.
         List<RunEventRow> catchUpEvents = runService.listRunEventsAfter(userId, runId, initialCursor);
 
         for (RunEventRow ev : catchUpEvents) {
@@ -179,9 +173,16 @@ public class SharedSseEventMultiplexer {
             }
             if (!subscriber.offerEvent(ev)) {
                 subscriber.markOverflowed();
-                unsubscribe(subscriber);
                 break;
             }
+        }
+
+        if (!subscriber.isOverflowed()) {
+            subscribersByRun.compute(runId, (k, list) -> {
+                CopyOnWriteArrayList<SseSubscriber> target = (list != null) ? list : new CopyOnWriteArrayList<>();
+                target.add(subscriber);
+                return target;
+            });
         }
 
         pollerScheduler.schedule(() -> scheduleSubscriberDrain(subscriber), 10L, TimeUnit.MILLISECONDS);

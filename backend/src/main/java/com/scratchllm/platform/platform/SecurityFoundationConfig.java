@@ -71,6 +71,26 @@ public class SecurityFoundationConfig {
                 HttpServletResponse response,
                 FilterChain filterChain
             ) throws ServletException, IOException {
+                String queryString = request.getQueryString();
+                if (queryString != null && !queryString.isBlank()) {
+                    String lowerQuery = queryString.toLowerCase( java.util.Locale.ROOT);
+                    if (lowerQuery.contains("token=")
+                        || lowerQuery.contains("access_token=")
+                        || lowerQuery.contains("session_token=")
+                        || lowerQuery.contains("internal_token=")
+                        || lowerQuery.contains("api_key=")) {
+                        writeJsonError(
+                            response,
+                            request,
+                            objectMapper,
+                            HttpStatus.BAD_REQUEST,
+                            "TOKEN_IN_URL_FORBIDDEN",
+                            "Credentials or tokens must never be passed in URL query parameters."
+                        );
+                        return;
+                    }
+                }
+
                 String sessionId = AuthController.extractSessionCookie(request);
                 if (sessionId != null && !sessionId.isBlank()) {
                     try {
@@ -97,6 +117,7 @@ public class SecurityFoundationConfig {
             .csrf(csrf -> csrf
                 .csrfTokenRepository(csrfRepository)
                 .csrfTokenRequestHandler(requestHandler)
+                .ignoringRequestMatchers("/internal/training-jobs/**")
             )
             .addFilterBefore(redisSessionFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(eh -> eh
@@ -128,7 +149,8 @@ public class SecurityFoundationConfig {
                     "/auth/register",
                     "/auth/login",
                     "/actuator/health",
-                    "/actuator/info"
+                    "/actuator/info",
+                    "/internal/training-jobs/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             );

@@ -176,6 +176,28 @@ public class RunService {
             catalogEntry.max_output_tokens()
         );
 
+        // Day083: Single-GPU mutual exclusion — if the requested model requires the local GPU (is_scratch_model)
+        // and the singleton gpu_leases (id = 1) is actively held by an offline TRAINING job, fail closed with
+        // 503 GPU_BUSY_WITH_TRAINING while allowing CPU/fake-deterministic runs to continue uninterrupted.
+        if (catalogEntry.is_scratch_model()) {
+            Integer activeTrainingLease = jdbcTemplate.queryForObject(
+                """
+                SELECT count(*) FROM gpu_leases
+                WHERE id = 1
+                  AND holder_kind = 'TRAINING'
+                  AND lease_state = 'ACTIVE'
+                """,
+                Integer.class
+            );
+            if (activeTrainingLease != null && activeTrainingLease > 0) {
+                throw new ApiException(
+                    HttpStatus.SERVICE_UNAVAILABLE,
+                    "GPU_BUSY_WITH_TRAINING",
+                    "Primary GPU is currently leased by an active offline training job; retry after training completes or use fake-deterministic."
+                );
+            }
+        }
+
         // Day058: Validate conservative prompt + reserved output token budget against model context_limit (128)
         int estimatedPromptTokens = Math.max(1, (request.prompt().length() + 3) / 4);
         int requestedOutputTokens = request.sampling().max_new_tokens();
