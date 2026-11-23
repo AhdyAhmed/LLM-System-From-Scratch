@@ -1,0 +1,47 @@
+{
+  "benchmark_id": "day092_postgres_query_plan_profile",
+  "generated_at_utc": "2026-10-17T06:22:19.457245+00:00",
+  "migration_version": "V6__phase10_query_plan_and_index_optimizations.sql",
+  "queries": [
+    {
+      "query_id": "conv_messages_tail_fetch",
+      "sql_pattern": "SELECT id, role, content, sequence_order FROM messages WHERE conversation_id = ? ORDER BY sequence_order DESC LIMIT 20",
+      "index_added": "idx_messages_conv_order_desc",
+      "before_plan_node": "Sort + Index Scan on uk_messages_conv_seq",
+      "after_plan_node": "Index Scan using idx_messages_conv_order_desc",
+      "before_p95_ms": 4.85,
+      "after_p95_ms": 0.62,
+      "improvement_factor": 7.82
+    },
+    {
+      "query_id": "conversation_runs_recent_history",
+      "sql_pattern": "SELECT id, status, model_revision, created_at FROM generation_runs WHERE conversation_id = ? ORDER BY created_at DESC LIMIT 25",
+      "index_added": "idx_generation_runs_conv_created_desc",
+      "before_plan_node": "Seq Scan + Top-N Heapsort on generation_runs",
+      "after_plan_node": "Index Scan using idx_generation_runs_conv_created_desc",
+      "before_p95_ms": 6.4,
+      "after_p95_ms": 0.74,
+      "improvement_factor": 8.65
+    },
+    {
+      "query_id": "outbox_relay_unpublished_batch",
+      "sql_pattern": "SELECT id, aggregate_type, aggregate_id, event_type, payload FROM outbox_events WHERE published_at IS NULL AND retry_count < 10 ORDER BY created_at ASC LIMIT 50",
+      "index_added": "idx_outbox_unpublished_retry_created",
+      "before_plan_node": "Bitmap Index Scan + Filter (retry_count < 10)",
+      "after_plan_node": "Index Scan using idx_outbox_unpublished_retry_created",
+      "before_p95_ms": 3.2,
+      "after_p95_ms": 0.48,
+      "improvement_factor": 6.67
+    },
+    {
+      "query_id": "run_events_retention_pruning",
+      "sql_pattern": "DELETE FROM run_events WHERE created_at < ?",
+      "index_added": "idx_run_events_created_at",
+      "before_plan_node": "Seq Scan on run_events",
+      "after_plan_node": "Index Scan using idx_run_events_created_at",
+      "before_p95_ms": 14.9,
+      "after_p95_ms": 1.15,
+      "improvement_factor": 12.96
+    }
+  ]
+}
