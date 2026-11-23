@@ -1,0 +1,31 @@
+{
+  "benchmark_id": "day096_mixed_workload_stress",
+  "generated_at_utc": "2026-10-17T06:22:26.435157+00:00",
+  "workloads": {
+    "concurrent_chat_runs": {
+      "submitted": 10,
+      "completed_cleanly": 8,
+      "cancelled_cleanly": 2,
+      "p95_completion_ms": 62.4
+    },
+    "slow_sse_consumer_isolation": {
+      "slow_client_delay_ms": 250,
+      "fast_client_p95_first_event_ms": 19.8,
+      "head_of_line_blocking_detected": false
+    },
+    "kafka_document_ingestion_during_chat": {
+      "documents_uploaded": 4,
+      "outbox_events_relayed": 4,
+      "chunks_indexed_pgvector": 12,
+      "p95_ingestion_to_ready_ms": 84.0
+    },
+    "gpu_mutual_exclusion_with_airflow": {
+      "training_lease_holder": "TRAINING",
+      "scratch_mini_submission_status": 503,
+      "scratch_mini_error_code": "GPU_BUSY_WITH_TRAINING",
+      "fake_deterministic_submission_status": 202,
+      "oom_or_deadlock_count": 0
+    }
+  },
+  "status": "PASSED"
+}
