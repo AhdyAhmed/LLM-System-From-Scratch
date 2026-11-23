@@ -18,6 +18,7 @@ import com.scratchllm.platform.generation.RunDtos.SubmitRunRequest;
 import com.scratchllm.platform.infrastructure.RedisRateLimiterService;
 import com.scratchllm.platform.modelcatalog.ModelCatalogController.ModelCatalogEntry;
 import com.scratchllm.platform.modelcatalog.ModelCatalogService;
+import com.scratchllm.platform.observability.RuntimeReadinessAndDrainService;
 import com.scratchllm.platform.platform.ApiException;
 import jakarta.annotation.PreDestroy;
 import java.nio.charset.StandardCharsets;
@@ -52,9 +53,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Day016, Day018, Day054, Day055, Day056, Day058 & Day077:
+ * Day016, Day018, Day054, Day055, Day056, Day058, Day077 & Day098:
  * - Idempotent run creation in PostgreSQL with canonical client request hashing (independent of model alias resolution)
  * - Replay verification BEFORE rate-limit or capacity/quota admission
+ * - Day098 graceful drain admission guard (`assertAcceptingAdmissions()`) rejecting new runs with 503 SERVICE_DRAINING while allowing idempotent replays
  * - Cache-aside Redis model metadata resolution via ModelCatalogService (`model:rev:{revision}`) with PostgreSQL fallback
  * - Explicit Day058 context-budget enforcement (`estimatedPromptTokens + max_new_tokens <= context_limit`)
  * - Canonical deadlock-free lock hierarchy (system_capacity -> usage_buckets -> conversations)
@@ -69,6 +71,7 @@ public class RunService {
     private final RedisRateLimiterService rateLimiterService;
     private final ModelCatalogService modelCatalogService;
     private final DocumentIngestionAndRetrievalService documentIngestionAndRetrievalService;
+    private final RuntimeReadinessAndDrainService readinessAndDrainService;
     private final GenerationProvider generationProvider;
     private final ObjectMapper objectMapper;
     private final int defaultDailyAllowance;
@@ -82,6 +85,7 @@ public class RunService {
         RedisRateLimiterService rateLimiterService,
         ModelCatalogService modelCatalogService,
         DocumentIngestionAndRetrievalService documentIngestionAndRetrievalService,
+        RuntimeReadinessAndDrainService readinessAndDrainService,
         GenerationProvider generationProvider,
         ObjectMapper objectMapper,
         @Value("${scratchllm.quota.daily-allowance-tokens:4096}") int defaultDailyAllowance,
@@ -92,6 +96,7 @@ public class RunService {
         this.rateLimiterService = rateLimiterService;
         this.modelCatalogService = modelCatalogService;
         this.documentIngestionAndRetrievalService = documentIngestionAndRetrievalService;
+        this.readinessAndDrainService = readinessAndDrainService;
         this.generationProvider = generationProvider;
         this.objectMapper = objectMapper;
         this.defaultDailyAllowance = defaultDailyAllowance;
@@ -159,6 +164,9 @@ public class RunService {
         if (existingReplay.found()) {
             return existingReplay.response();
         }
+
+        // 3b. Day098: Reject new admissions when replica is in graceful DRAINING state (503 SERVICE_DRAINING)
+        readinessAndDrainService.assertAcceptingAdmissions();
 
         // 4. Enforce Redis atomic Lua rate limit for new logical run submissions
         rateLimiterService.enforceRunSubmissionLimit(userId.toString());

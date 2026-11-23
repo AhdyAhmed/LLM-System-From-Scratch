@@ -23,8 +23,14 @@ public class RequestIdFilter extends OncePerRequestFilter {
     public static final String REQUEST_ID_HEADER = "X-Request-Id";
     public static final String CORRELATION_ID_HEADER = "X-Correlation-Id";
     public static final String TRACEPARENT_HEADER = "traceparent";
+    public static final String REPLICA_ID_HEADER = "X-Replica-Id";
+    public static final String SIMULATED_REPLICA_HEADER = "X-Simulated-Replica-Id";
     public static final String REQUEST_ID_ATTR = "scratchllm.request_id";
     public static final String CORRELATION_ID_ATTR = "scratchllm.correlation_id";
+    public static final String REPLICA_ID_ATTR = "scratchllm.replica_id";
+
+    @org.springframework.beans.factory.annotation.Value("${scratchllm.replica.id:replica-1}")
+    private String configuredReplicaId = "replica-1";
 
     @Override
     protected void doFilterInternal(
@@ -42,10 +48,17 @@ public class RequestIdFilter extends OncePerRequestFilter {
             ? incomingCorrId.trim()
             : requestId;
 
+        String simReplica = request.getHeader(SIMULATED_REPLICA_HEADER);
+        String activeReplicaId = (simReplica != null && !simReplica.isBlank() && simReplica.length() <= 32)
+            ? simReplica.trim()
+            : configuredReplicaId;
+
         request.setAttribute(REQUEST_ID_ATTR, requestId);
         request.setAttribute(CORRELATION_ID_ATTR, correlationId);
+        request.setAttribute(REPLICA_ID_ATTR, activeReplicaId);
         response.setHeader(REQUEST_ID_HEADER, requestId);
         response.setHeader(CORRELATION_ID_HEADER, correlationId);
+        response.setHeader(REPLICA_ID_HEADER, activeReplicaId);
 
         String traceparent = request.getHeader(TRACEPARENT_HEADER);
         if (traceparent != null && !traceparent.isBlank() && traceparent.length() <= 128) {
@@ -54,11 +67,13 @@ public class RequestIdFilter extends OncePerRequestFilter {
 
         MDC.put("request_id", requestId);
         MDC.put("correlation_id", correlationId);
+        MDC.put("replica_id", activeReplicaId);
         try {
             filterChain.doFilter(request, response);
         } finally {
             MDC.remove("request_id");
             MDC.remove("correlation_id");
+            MDC.remove("replica_id");
         }
     }
 

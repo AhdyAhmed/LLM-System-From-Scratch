@@ -88,8 +88,13 @@ public class RunController {
         @RequestHeader(name = "Last-Event-ID", required = false) Long lastEventId,
         @RequestParam(name = "after", required = false) Long afterCursor,
         @RequestParam(name = "max_queue_capacity", required = false) Integer maxQueueCapacity,
-        @RequestParam(name = "simulated_write_delay_ms", required = false) Long simulatedWriteDelayMs
+        @RequestParam(name = "simulated_write_delay_ms", required = false) Long simulatedWriteDelayMs,
+        jakarta.servlet.http.HttpServletResponse response
     ) {
+        // Day093: Disable reverse-proxy response buffering for SSE streaming across replicas
+        response.setHeader("X-Accel-Buffering", "no");
+        response.setHeader("Cache-Control", "no-cache, no-transform");
+
         long initialCursor = 0L;
         if (lastEventId != null && lastEventId >= 0) {
             initialCursor = lastEventId;

@@ -4,7 +4,7 @@ services:
   postgres:
     image: pgvector/pgvector:pg16
     container_name: scratchllm-postgres
-    profiles: ["db", "platform", "tracking", "pipelines"]
+    profiles: ["db", "platform", "tracking", "pipelines", "full"]
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_SUPERUSER:-postgres}
@@ -39,7 +39,7 @@ services:
   redis:
     image: redis:7.4-alpine
     container_name: scratchllm-redis
-    profiles: ["platform"]
+    profiles: ["platform", "full"]
     restart: unless-stopped
     ports:
       - "127.0.0.1:${REDIS_PORT:-63799}:6379"
@@ -67,7 +67,7 @@ services:
   kafka:
     image: apache/kafka:3.9.2
     container_name: scratchllm-kafka
-    profiles: ["platform"]
+    profiles: ["platform", "full"]
     restart: unless-stopped
     ports:
       - "127.0.0.1:${KAFKA_PORT:-9094}:9094"
@@ -97,7 +97,7 @@ services:
   mlflow:
     image: pymk-mlflow:3.17.1
     container_name: scratchllm-mlflow
-    profiles: ["tracking"]
+    profiles: ["tracking", "full"]
     restart: unless-stopped
     depends_on:
       postgres:
@@ -132,13 +132,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.50"
+          cpus: "1.50"
           memory: 1024M
 
   airflow:
     image: apache/airflow:3.2.2-python3.12
     container_name: scratchllm-airflow
-    profiles: ["pipelines"]
+    profiles: ["pipelines", "full"]
     restart: unless-stopped
     depends_on:
       postgres:

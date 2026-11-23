@@ -1,47 +1,60 @@
-# Local Infrastructure Setup and Reset Guide
+# Local Workstation Setup & Sequential Profile Guide (`Day097`)
 
-Status: Verified Phase 1 Baseline (Day004 — Gate G1)
-Companion documents: [environment.md](environment.md) | [schema.md](schema.md) | [design.md](../design.md)
+This guide documents how to run the **ScratchLLM Platform** within the single-workstation physical budget (`8 CPU threads`, `16 GB RAM`, `1x 6 GB CUDA GPU`, `80 GB SSD`) without swapping or host OOMs.
 
-## 1. Staged Compose Profiles
+---
 
-To keep memory, CPU, and disk usage bounded on the 4-core `i7-6820HQ`, `infra/compose.yml` separates services into explicit profiles:
+## 1. Workstation Resource Budget & Sequential Profiles
 
-- **`db` profile (Phase 1 & 3–5 foundation):** Starts only `postgres` (`pgvector/pgvector:pg16`) on `127.0.0.1:54322` and initializes three isolated databases (`llm_app`, `mlflow_db`, `airflow_db`) with separate credentials (`llm_app_user`, `mlflow_user`, `airflow_user`) and `pgvector`/`pgcrypto` extensions.
-- **`platform` profile (Phase 2 & 6–8):** Starts `postgres`, `redis` (`127.0.0.1:63799`, `noeviction`), and single-broker KRaft `kafka` (`127.0.0.1:9094`).
-- **`tracking` profile (Phase 4–6 & 9–12):** Starts `postgres` and `mlflow` (`127.0.0.1:5001`) with `--serve-artifacts` (`mlflow-artifacts:/`).
-- **`pipelines` profile (Phase 9–12):** Starts `postgres` and `airflow` (`127.0.0.1:8088`, `LocalExecutor`, parallelism `2`) with `host.docker.internal` mapped to the native Windows host gateway.
+Running PostgreSQL, Redis, Kafka, MLflow, Airflow, two Spring Boot API replicas, the React UI, and PyTorch CUDA simultaneously exceeds 16 GB of system RAM. Therefore, Docker Compose ([`infra/compose.yml`](file:///e:/backend-java/3-projects/7-LLM/central/LLM-System-From-Scratch/infra/compose.yml)) and native launch scripts use explicit **sequential profiles**:
 
-## 2. Commands for Phase 1 (`db` Profile)
+| Profile Name | Containers Started | Host Native Processes | Peak RAM Budget | Primary Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| `db` | `postgres` (`pgvector:pg16`) | None / Schema tools | `~1.8 GB` | Schema migrations, SQL query-plan inspection (`Day092`), offline evals |
+| `platform` | `postgres`, `redis`, `kafka` | 1–2 Spring Boot replicas + FastAPI Gateway + React UI | `~7.5 GB` | Interactive chat, SSE streaming, RAG ingestion, two-replica scaling (`Day093`–`Day096`) |
+| `tracking` | `postgres`, `mlflow` | Python training / eval CLI | `~4.5 GB` | Pretraining, SFT, DPO, and MLflow artifact registration (`Phase 3`–`Phase 5`) |
+| `pipelines` | `postgres`, `airflow` | Native Training Worker (`native_worker.py`) | `~5.2 GB` | Offline Airflow DAG orchestration & single-GPU training handoff (`Phase 9`) |
+| `full` | All 5 containers | Config validation / high-RAM hosts | `~9.5 GB` | Compose syntax verification (`docker compose --profile full config -q`) |
 
-### Start PostgreSQL only (Phase 1 requirement)
+---
+
+## 2. Step-by-Step Startup Workflows
+
+### 2.1 Interactive Platform Profile (`platform`)
+
+1. Start the core data plane containers:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts\start_infra.ps1 -Profile platform
+   ```
+2. Launch native services (single-replica or two-replica mode):
+   ```powershell
+   # Single replica (Spring Boot on :8080 + FastAPI Inference Gateway on :8091)
+   powershell -ExecutionPolicy Bypass -File scripts\start_native_services.ps1 -Mode single
+
+   # Two-replica mode (Spring Boot on :8080 and :8082 + FastAPI Inference Gateway on :8091)
+   powershell -ExecutionPolicy Bypass -File scripts\start_native_services.ps1 -Mode two-replica
+   ```
+3. Optional: Start the stateless round-robin Nginx reverse proxy on `127.0.0.1:8090` using [`infra/nginx/nginx-two-replica.conf`](file:///e:/backend-java/3-projects/7-LLM/central/LLM-System-From-Scratch/infra/nginx/nginx-two-replica.conf).
+
+### 2.2 CPU-Only Demo Mode (`No-CUDA Fallback`)
+
+For laptops or CI runners without a dedicated NVIDIA GPU, run the self-contained CPU demo using the `scratch-mini` (`~1.2M` parameters) checkpoint and `fake-deterministic` provider:
+
 ```powershell
-docker compose -f infra/compose.yml --profile db up -d
-docker compose -f infra/compose.yml ps
+powershell -ExecutionPolicy Bypass -File scripts\run_cpu_demo.ps1
 ```
 
-### Verify Isolated Databases and `pgvector` Extension
+### 2.3 Stopping Services Cleanly
+
 ```powershell
-docker exec scratchllm-postgres psql -U llm_app_user -d llm_app -c "SELECT current_database(), current_user, extname FROM pg_extension WHERE extname IN ('vector', 'pgcrypto');"
+powershell -ExecutionPolicy Bypass -File scripts\stop_native_services.ps1
+powershell -ExecutionPolicy Bypass -File scripts\stop_infra.ps1
 ```
 
-### Run Backend Flyway Migrations and Integration Tests
-```powershell
-cd backend
-.\mvnw.cmd test
-```
+---
 
-### Safe Development Stop and Reset
-- Stop running containers while preserving volumes:
-  ```powershell
-  docker compose -f infra/compose.yml --profile db --profile platform --profile tracking --profile pipelines stop
-  ```
-- Full clean reset (drops local development database/cache volumes):
-  ```powershell
-  docker compose -f infra/compose.yml --profile db --profile platform --profile tracking --profile pipelines down -v
-  ```
+## 3. Startup Config Validation & Graceful Draining (`Day098`)
 
-## 3. Port and Security Policy
-
-- Every container port in `infra/compose.yml` binds explicitly to `127.0.0.1` (`127.0.0.1:54322`, `127.0.0.1:63799`, `127.0.0.1:9094`, `127.0.0.1:5001`, `127.0.0.1:8088`) so local development services are never exposed on public LAN/Wi-Fi interfaces.
-- Application JPA (`llm_app_user`) has no permissions on `mlflow_db` or `airflow_db`.
+- **Startup Validation**: [`RuntimeReadinessAndDrainService`](file:///e:/backend-java/3-projects/7-LLM/central/LLM-System-From-Scratch/backend/src/main/java/com/scratchllm/platform/observability/RuntimeReadinessAndDrainService.java) validates `maxActiveRuns >= 1`, `maxQueuedRuns >= 1`, `ssePollIntervalMs >= 10`, and `dailyAllowanceTokens >= 64` at startup (`@PostConstruct`), failing fast if misconfigured.
+- **Readiness Probe**: `GET /api/v1/observability/readiness` returns `200 OK` when PostgreSQL, Redis, and admission state are `READY`, or `503 Service Unavailable` when `DRAINING`.
+- **Graceful Drain**: `POST /api/v1/observability/drain` transitions the replica to `DRAINING`, blocking new run admissions with `503 SERVICE_DRAINING` while allowing idempotent replays and releasing idle GPU inference leases cleanly.

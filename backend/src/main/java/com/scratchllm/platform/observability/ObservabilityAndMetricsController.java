@@ -8,20 +8,22 @@ import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Day088: End-to-End Observability & Bounded-Cardinality Metrics Endpoint.
+ * Day088 & Day098: End-to-End Observability, Bounded-Cardinality Metrics, Readiness, and Graceful Drain Endpoint.
  *
  * Exposes bounded-cardinality operational metrics (queue depth, active runs, outbox backlog,
  * DLQ count, SSE multiplexer fan-out stats, model promotion status, Airflow training job status,
- * and single-GPU lease status) while enforcing strict log/telemetry redaction rules
- * (prompts, raw document texts, and authentication/CSRF/session tokens are NEVER emitted).
+ * and single-GPU lease status) plus Day098 readiness and graceful drain controls.
  */
 @RestController
 @RequestMapping("/api/v1/observability")
@@ -29,13 +31,34 @@ public class ObservabilityAndMetricsController {
 
     private final JdbcTemplate jdbcTemplate;
     private final SharedSseEventMultiplexer sseMultiplexer;
+    private final RuntimeReadinessAndDrainService readinessAndDrainService;
 
     public ObservabilityAndMetricsController(
         JdbcTemplate jdbcTemplate,
-        SharedSseEventMultiplexer sseMultiplexer
+        SharedSseEventMultiplexer sseMultiplexer,
+        RuntimeReadinessAndDrainService readinessAndDrainService
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.sseMultiplexer = sseMultiplexer;
+        this.readinessAndDrainService = readinessAndDrainService;
+    }
+
+    @GetMapping(value = "/readiness", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> getReadiness() {
+        Map<String, Object> report = readinessAndDrainService.checkReadiness();
+        boolean ready = Boolean.TRUE.equals(report.get("accepting_admissions"));
+        return ResponseEntity.status(ready ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE).body(report);
+    }
+
+    @PostMapping(value = "/drain", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> initiateDrain(@RequestBody(required = false) Map<String, String> body) {
+        String reason = body != null ? body.get("reason") : null;
+        return ResponseEntity.ok(readinessAndDrainService.initiateGracefulDrain(reason));
+    }
+
+    @PostMapping(value = "/resume", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> resumeTraffic() {
+        return ResponseEntity.ok(readinessAndDrainService.resumeAdmissions());
     }
 
     @GetMapping(value = "/metrics", produces = MediaType.APPLICATION_JSON_VALUE)

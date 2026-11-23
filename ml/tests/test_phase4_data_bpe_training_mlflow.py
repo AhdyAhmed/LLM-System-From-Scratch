@@ -478,7 +478,7 @@ def test_day039_day040_mlflow_lineage_logical_uris_and_outage_spool_recovery(tmp
     # 3. Live MLflow server integration: run creation, outage spooling, flush reconciliation, and artifact round-trip
     mlflow_url = "http://127.0.0.1:5001"
     try:
-        resp = httpx.get(f"{mlflow_url}/health", timeout=2.0)
+        resp = httpx.get(f"{mlflow_url}/health", timeout=10.0)
         mlflow_online = resp.status_code == 200
     except httpx.HTTPError:
         mlflow_online = False
