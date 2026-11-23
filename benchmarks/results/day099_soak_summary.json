@@ -1,0 +1,20 @@
+{
+  "benchmark_id": "day099_bounded_soak_and_retention",
+  "generated_at_utc": "2026-10-17T06:22:26.435157+00:00",
+  "soak_iterations": 40,
+  "stability_metrics": {
+    "heap_delta_mb": 4.2,
+    "hikari_leaked_connections": 0,
+    "redis_evicted_keys": 0,
+    "orphaned_non_terminal_runs": 0,
+    "unrelayed_outbox_rows_at_end": 0,
+    "gpu_lease_final_state": "RELEASED"
+  },
+  "retention_verification": {
+    "expired_run_events_pruned": true,
+    "orphan_document_uploads_cleaned": true,
+    "pinned_model_revisions_preserved": true,
+    "active_model_releases_preserved": true
+  },
+  "status": "PASSED"
+}
