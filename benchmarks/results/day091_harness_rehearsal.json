@@ -1,0 +1,30 @@
+{
+  "benchmark_id": "day091_harness_rehearsal",
+  "schema_version": 1,
+  "generated_at_utc": "2026-10-17T06:22:19.457245+00:00",
+  "environment": {
+    "os": "Windows",
+    "python_version": "3.12.0",
+    "torch_version": "2.6.0+cu118",
+    "cuda_available": true,
+    "cpu_count": 8
+  },
+  "scenarios_registered": [
+    "day092_postgres_query_plan_profile",
+    "day094_api_replica_scaling_and_overload",
+    "day095_model_serving_kv_cache_matrix",
+    "day096_mixed_workload_stress",
+    "day099_bounded_soak_and_retention"
+  ],
+  "rehearsal_latency_summary": {
+    "count": 10,
+    "min_ms": 4.2,
+    "mean_ms": 6.51,
+    "p50_ms": 5.9,
+    "p95_ms": 11.2,
+    "p99_ms": 11.2,
+    "max_ms": 11.2
+  },
+  "error_rate": 0.0,
+  "status": "PASSED"
+}
