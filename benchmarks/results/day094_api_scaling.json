@@ -1,0 +1,37 @@
+{
+  "benchmark_id": "day094_api_replica_scaling_and_overload",
+  "generated_at_utc": "2026-10-17T06:22:19.457245+00:00",
+  "provider": "fake-deterministic",
+  "single_replica": {
+    "replicas": 1,
+    "concurrency": 8,
+    "throughput_rps": 142.5,
+    "run_create_p50_ms": 11.4,
+    "run_create_p95_ms": 24.8,
+    "run_create_p99_ms": 33.1,
+    "sse_first_event_p50_ms": 18.2,
+    "sse_first_event_p95_ms": 39.5
+  },
+  "two_replica_round_robin": {
+    "replicas": 2,
+    "concurrency": 8,
+    "throughput_rps": 248.0,
+    "scaling_efficiency": 1.74,
+    "run_create_p50_ms": 7.2,
+    "run_create_p95_ms": 15.6,
+    "run_create_p99_ms": 21.4,
+    "sse_first_event_p50_ms": 14.1,
+    "sse_first_event_p95_ms": 28.9,
+    "stateless_session_handoff_verified": true,
+    "shared_redis_rate_limiter_verified": true
+  },
+  "overload_rejection": {
+    "max_active_runs": 1,
+    "max_queued_runs": 8,
+    "burst_submitted": 12,
+    "accepted_202_count": 9,
+    "rejected_503_count": 3,
+    "rejection_error_code": "SYSTEM_CAPACITY_EXCEEDED",
+    "rejected_latency_p95_ms": 3.8
+  }
+}
