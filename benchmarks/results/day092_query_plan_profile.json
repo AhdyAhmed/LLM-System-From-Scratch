@@ -1,6 +1,6 @@
 {
   "benchmark_id": "day092_postgres_query_plan_profile",
-  "generated_at_utc": "2026-10-17T06:22:19.457245+00:00",
+  "generated_at_utc": "2026-10-17T07:00:07.575741+00:00",
   "migration_version": "V6__phase10_query_plan_and_index_optimizations.sql",
   "queries": [
     {

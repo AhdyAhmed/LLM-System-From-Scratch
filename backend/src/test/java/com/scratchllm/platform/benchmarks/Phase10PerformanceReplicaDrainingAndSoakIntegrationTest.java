@@ -52,11 +52,18 @@ class Phase10PerformanceReplicaDrainingAndSoakIntegrationTest {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+    private org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
+
+    @Autowired
     private RuntimeReadinessAndDrainService readinessAndDrainService;
 
     @BeforeEach
     void resetStateBeforeEach() {
         readinessAndDrainService.resumeAdmissions();
+        var rlKeys = redisTemplate.keys("scratchllm:ratelimit:*");
+        if (rlKeys != null && !rlKeys.isEmpty()) {
+            redisTemplate.delete(rlKeys);
+        }
         jdbcTemplate.update(
             "UPDATE system_capacity SET active_or_waiting_runs = 0, updated_at = now() WHERE id = 1"
         );
@@ -166,11 +173,11 @@ class Phase10PerformanceReplicaDrainingAndSoakIntegrationTest {
             .andExpect(header().string("X-Accel-Buffering", "no"))
             .andExpect(header().string("Cache-Control", "no-cache, no-transform"));
 
-        // 4. Day094: Simulate system_capacity at full active + waiting queue cap (`active_or_waiting_runs = 8`)
+        // 4. Day094: Simulate system_capacity at full active + waiting queue cap (`active_or_waiting_runs >= max_waiting_runs`)
         // New run submissions must fast-fail with 503 SYSTEM_CAPACITY_EXCEEDED
         String overloadConvId = createConversation(session, "Overload Test Conversation");
         jdbcTemplate.update(
-            "UPDATE system_capacity SET active_or_waiting_runs = 8, updated_at = now() WHERE id = 1"
+            "UPDATE system_capacity SET active_or_waiting_runs = 16, updated_at = now() WHERE id = 1"
         );
         mockMvc.perform(
                 post("/api/v1/conversations/" + overloadConvId + "/runs")
