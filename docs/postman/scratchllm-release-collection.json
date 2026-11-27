@@ -1,0 +1,97 @@
+{
+  "info": {
+    "name": "ScratchLLM Platform v1.0.0 Release Collection (Gate G12)",
+    "_postman_id": "a9112000-7622-4ce8-b2f2-2ea29bdffe12",
+    "description": "Day116 reproducible Postman collection covering CSRF/session auth, persistent conversations, ScratchGPT SSE streaming, Last-Event-ID replay, cited RAG search, monotonic model promotion/rollback, and Airflow GPU-exclusive training.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8080"
+    },
+    {
+      "key": "internalToken",
+      "value": "scratchllm-internal-dev-token-day051"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Get CSRF Token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/auth/csrf",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "csrf"]
+        }
+      }
+    },
+    {
+      "name": "2. Register User & Workspace",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"},
+          {"key": "X-CSRF-TOKEN", "value": "{{csrfToken}}"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"demo@scratchllm.local\",\n  \"password\": \"StrongDemoPass!123\",\n  \"workspace_name\": \"Demo Workspace\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "3. Submit Generation Run (Idempotent)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"},
+          {"key": "X-CSRF-TOKEN", "value": "{{csrfToken}}"},
+          {"key": "Idempotency-Key", "value": "postman-demo-idem-0001"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model_alias\": \"fake-deterministic\",\n  \"prompt\": \"Explain how ScratchKVCache avoids prefix recomputation.\",\n  \"sampling\": {\n    \"temperature\": 0.0,\n    \"top_k\": 1,\n    \"top_p\": 1.0,\n    \"max_new_tokens\": 16\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/conversations/{{conversationId}}/runs",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "conversations", "{{conversationId}}", "runs"]
+        }
+      }
+    },
+    {
+      "name": "4. Stream SSE Events (with optional Last-Event-ID)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {"key": "Accept", "value": "text/event-stream"}
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/runs/{{runId}}/events",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "runs", "{{runId}}", "events"]
+        }
+      }
+    },
+    {
+      "name": "5. Get Release Manifest (v1.0.0)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/release/manifest",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "release", "manifest"]
+        }
+      }
+    }
+  ]
+}
