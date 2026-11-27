@@ -1,0 +1,20 @@
+{
+  "rehearsal_id": "day117_clean_checkout_rehearsal",
+  "verified_at_utc": "2026-10-17T07:24:12.996050+00:00",
+  "duration_ms": 90.247,
+  "checked_files_count": 35,
+  "missing_files": [],
+  "flyway_migrations_verified": [
+    "V1",
+    "V2",
+    "V3",
+    "V4",
+    "V5",
+    "V6",
+    "V7"
+  ],
+  "model_package_reload_verified": true,
+  "loaded_package_sha256": "ba30f95421b3016b5b08ddae2b63537b701c759c2cbcc42cc495b929ebc2b12b",
+  "undocumented_global_assumptions": 0,
+  "status": "PASSED"
+}
