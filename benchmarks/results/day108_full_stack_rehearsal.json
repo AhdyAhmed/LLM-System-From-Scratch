@@ -1,0 +1,31 @@
+{
+  "rehearsal_id": "day108_complete_stack_tiny_workload_rehearsal",
+  "generated_at_utc": "2026-10-17T07:00:12.653382+00:00",
+  "hardware_budget": {
+    "host_ram_gb": 16,
+    "measured_peak_ram_gb": 7.8,
+    "gpu_device": "NVIDIA Quadro M2000M (4 GB VRAM)",
+    "disk_growth_mb": 14.2
+  },
+  "components_verified": {
+    "postgresql_multi_db": "UP (llm_app, mlflow_db, airflow_db)",
+    "redis_session_and_lua_limiter": "UP (stateless 2-replica handoff verified)",
+    "kafka_outbox_inbox_pipeline": "UP (0 unrelayed events, deduplication verified)",
+    "online_fake_provider_chat_sse": "PASSED (202 Accepted -> SSE token.delta -> run.completed)",
+    "offline_airflow_to_mlflow_pipeline": "PASSED (pretrain -> eval -> register candidate)",
+    "deliberate_gpu_training_serving_conflict": {
+      "active_holder": "TRAINING (scratchlm_offline_training_v1)",
+      "concurrent_scratch_tiny_inference_status": 503,
+      "concurrent_scratch_tiny_error_code": "GPU_BUSY_WITH_TRAINING",
+      "concurrent_fake_deterministic_status": 202,
+      "dual_gpu_allocation_prevented": true
+    },
+    "active_backup_and_retention_pass": {
+      "backup_manifest_verified": true,
+      "expired_events_pruned": true,
+      "pinned_lineage_preserved": true
+    }
+  },
+  "failures_count": 0,
+  "status": "PASSED"
+}
