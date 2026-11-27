@@ -1,6 +1,6 @@
 {
   "benchmark_id": "day095_model_serving_kv_cache_matrix",
-  "generated_at_utc": "2026-10-17T07:00:12.451895+00:00",
+  "generated_at_utc": "2026-10-17T07:24:12.326238+00:00",
   "model_profile": "scratch-mini-bench",
   "parameter_count": 875264,
   "max_seq_len": 128,
@@ -15,9 +15,9 @@
         "prompt_len": 16,
         "max_new_tokens": 16,
         "kv_cache_enabled": true,
-        "ttft_ms": 20.3007,
-        "total_decode_ms": 183.5512,
-        "tokens_per_sec": 87.17,
+        "ttft_ms": 5.0648,
+        "total_decode_ms": 104.4242,
+        "tokens_per_sec": 153.22,
         "kv_cache_bytes": 126976,
         "vram_or_tensor_bytes": 3628032,
         "greedy_tokens": [
@@ -43,9 +43,9 @@
         "prompt_len": 16,
         "max_new_tokens": 16,
         "kv_cache_enabled": false,
-        "ttft_ms": 13.1338,
-        "total_decode_ms": 183.112,
-        "tokens_per_sec": 87.38,
+        "ttft_ms": 25.8552,
+        "total_decode_ms": 156.8186,
+        "tokens_per_sec": 102.03,
         "kv_cache_bytes": 0,
         "vram_or_tensor_bytes": 3501056,
         "greedy_tokens": [
@@ -67,7 +67,7 @@
           200
         ]
       },
-      "speedup_ratio": 0.998,
+      "speedup_ratio": 1.502,
       "greedy_tokens_identical": true,
       "max_abs_logit_diff": 7.2e-07,
       "parity_passed": true
@@ -80,9 +80,9 @@
         "prompt_len": 16,
         "max_new_tokens": 32,
         "kv_cache_enabled": true,
-        "ttft_ms": 9.328,
-        "total_decode_ms": 316.9811,
-        "tokens_per_sec": 100.95,
+        "ttft_ms": 5.7024,
+        "total_decode_ms": 216.8435,
+        "tokens_per_sec": 147.57,
         "kv_cache_bytes": 192512,
         "vram_or_tensor_bytes": 3693568,
         "greedy_tokens": [
@@ -124,9 +124,9 @@
         "prompt_len": 16,
         "max_new_tokens": 32,
         "kv_cache_enabled": false,
-        "ttft_ms": 12.6489,
-        "total_decode_ms": 368.7232,
-        "tokens_per_sec": 86.79,
+        "ttft_ms": 8.6452,
+        "total_decode_ms": 275.5169,
+        "tokens_per_sec": 116.15,
         "kv_cache_bytes": 0,
         "vram_or_tensor_bytes": 3501056,
         "greedy_tokens": [
@@ -164,7 +164,7 @@
           200
         ]
       },
-      "speedup_ratio": 1.163,
+      "speedup_ratio": 1.271,
       "greedy_tokens_identical": true,
       "max_abs_logit_diff": 7.2e-07,
       "parity_passed": true
@@ -177,9 +177,9 @@
         "prompt_len": 64,
         "max_new_tokens": 16,
         "kv_cache_enabled": true,
-        "ttft_ms": 7.4567,
-        "total_decode_ms": 183.4248,
-        "tokens_per_sec": 87.23,
+        "ttft_ms": 25.3816,
+        "total_decode_ms": 134.665,
+        "tokens_per_sec": 118.81,
         "kv_cache_bytes": 323584,
         "vram_or_tensor_bytes": 3824640,
         "greedy_tokens": [
@@ -205,9 +205,9 @@
         "prompt_len": 64,
         "max_new_tokens": 16,
         "kv_cache_enabled": false,
-        "ttft_ms": 19.8246,
-        "total_decode_ms": 269.823,
-        "tokens_per_sec": 59.3,
+        "ttft_ms": 8.4449,
+        "total_decode_ms": 154.2546,
+        "tokens_per_sec": 103.72,
         "kv_cache_bytes": 0,
         "vram_or_tensor_bytes": 3501056,
         "greedy_tokens": [
@@ -229,7 +229,7 @@
           312
         ]
       },
-      "speedup_ratio": 1.471,
+      "speedup_ratio": 1.145,
       "greedy_tokens_identical": true,
       "max_abs_logit_diff": 4.2e-07,
       "parity_passed": true
@@ -242,9 +242,9 @@
         "prompt_len": 64,
         "max_new_tokens": 32,
         "kv_cache_enabled": true,
-        "ttft_ms": 14.3271,
-        "total_decode_ms": 327.3148,
-        "tokens_per_sec": 97.77,
+        "ttft_ms": 11.1137,
+        "total_decode_ms": 369.4662,
+        "tokens_per_sec": 86.61,
         "kv_cache_bytes": 389120,
         "vram_or_tensor_bytes": 3890176,
         "greedy_tokens": [
@@ -286,9 +286,9 @@
         "prompt_len": 64,
         "max_new_tokens": 32,
         "kv_cache_enabled": false,
-        "ttft_ms": 13.0132,
-        "total_decode_ms": 630.3515,
-        "tokens_per_sec": 50.77,
+        "ttft_ms": 13.482,
+        "total_decode_ms": 465.8956,
+        "tokens_per_sec": 68.68,
         "kv_cache_bytes": 0,
         "vram_or_tensor_bytes": 3501056,
         "greedy_tokens": [
@@ -326,7 +326,7 @@
           312
         ]
       },
-      "speedup_ratio": 1.926,
+      "speedup_ratio": 1.261,
       "greedy_tokens_identical": true,
       "max_abs_logit_diff": 4.2e-07,
       "parity_passed": true
@@ -339,9 +339,9 @@
         "prompt_len": 96,
         "max_new_tokens": 16,
         "kv_cache_enabled": true,
-        "ttft_ms": 13.2654,
-        "total_decode_ms": 157.3128,
-        "tokens_per_sec": 101.71,
+        "ttft_ms": 8.9874,
+        "total_decode_ms": 104.1703,
+        "tokens_per_sec": 153.59,
         "kv_cache_bytes": 454656,
         "vram_or_tensor_bytes": 3955712,
         "greedy_tokens": [
@@ -367,9 +367,9 @@
         "prompt_len": 96,
         "max_new_tokens": 16,
         "kv_cache_enabled": false,
-        "ttft_ms": 18.6543,
-        "total_decode_ms": 308.8986,
-        "tokens_per_sec": 51.8,
+        "ttft_ms": 11.8948,
+        "total_decode_ms": 175.9843,
+        "tokens_per_sec": 90.92,
         "kv_cache_bytes": 0,
         "vram_or_tensor_bytes": 3501056,
         "greedy_tokens": [
@@ -391,7 +391,7 @@
           424
         ]
       },
-      "speedup_ratio": 1.964,
+      "speedup_ratio": 1.689,
       "greedy_tokens_identical": true,
       "max_abs_logit_diff": 4.2e-07,
       "parity_passed": true
@@ -404,9 +404,9 @@
         "prompt_len": 96,
         "max_new_tokens": 32,
         "kv_cache_enabled": true,
-        "ttft_ms": 13.9053,
-        "total_decode_ms": 336.456,
-        "tokens_per_sec": 95.11,
+        "ttft_ms": 8.3042,
+        "total_decode_ms": 227.1215,
+        "tokens_per_sec": 140.89,
         "kv_cache_bytes": 520192,
         "vram_or_tensor_bytes": 4021248,
         "greedy_tokens": [
@@ -448,9 +448,9 @@
         "prompt_len": 96,
         "max_new_tokens": 32,
         "kv_cache_enabled": false,
-        "ttft_ms": 19.2277,
-        "total_decode_ms": 642.5669,
-        "tokens_per_sec": 49.8,
+        "ttft_ms": 10.1273,
+        "total_decode_ms": 385.9906,
+        "tokens_per_sec": 82.9,
         "kv_cache_bytes": 0,
         "vram_or_tensor_bytes": 3501056,
         "greedy_tokens": [
@@ -488,7 +488,7 @@
           424
         ]
       },
-      "speedup_ratio": 1.91,
+      "speedup_ratio": 1.699,
       "greedy_tokens_identical": true,
       "max_abs_logit_diff": 4.2e-07,
       "parity_passed": true
